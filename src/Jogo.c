@@ -9,7 +9,7 @@ struct Jogo {
   ALLEGRO_TIMER *timer;
   ALLEGRO_EVENT_QUEUE *queue;
   // ALLEGRO_FONT *font;
-  ALLEGRO_EVENT *event;
+  ALLEGRO_EVENT event;
 };
 
 Jogo *novo_jogo() {
@@ -32,7 +32,7 @@ Jogo *novo_jogo() {
 }
 
 bool jogo_rodando(Jogo *J) {
-  if (J->event->type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+  if (J->event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
     return false;
 
   return true;
@@ -41,9 +41,9 @@ bool jogo_rodando(Jogo *J) {
 void atualizar_jogo(Jogo *J) {
   bool redraw;
 
-  al_wait_for_event(J->queue, J->event);
+  al_wait_for_event(J->queue, &J->event);
 
-  if (J->event->type == ALLEGRO_EVENT_TIMER) {
+  if (J->event.type == ALLEGRO_EVENT_TIMER) {
     redraw = true;
   }
 
