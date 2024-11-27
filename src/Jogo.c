@@ -15,7 +15,6 @@ struct Jogo {
 
 Jogo *novo_jogo() {
   al_init();
-  // al_init_font_addon();
   al_install_keyboard();
 
   Jogo *J = malloc(sizeof(Jogo));
@@ -24,7 +23,6 @@ Jogo *novo_jogo() {
   J->timer = al_create_timer(1.0 / 10.0);
   J->queue = al_create_event_queue();
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool));
-  // J->font = al_create_builtin_font();
 
   al_register_event_source(J->queue, al_get_keyboard_event_source());
   al_register_event_source(J->queue, al_get_display_event_source(J->disp));
@@ -61,7 +59,6 @@ void atualizar_jogo(Jogo *J) {
       // fazer alguma coisa
     }
     al_clear_to_color(al_map_rgb(150, 150, 200));
-    // al_draw_text(font, al_map_rgb(255, 255, 255), 300, 200, ALLEGRO_ALIGN_CENTRE, "Alô mundo!");
     al_flip_display();
     redraw = false;
   }
@@ -69,7 +66,6 @@ void atualizar_jogo(Jogo *J) {
 }
 
 void finalizar_jogo(Jogo *J) {
-  // al_destroy_font(J->font);
   al_destroy_display(J->disp);
   al_destroy_timer(J->timer);
   al_destroy_event_queue(J->queue);
