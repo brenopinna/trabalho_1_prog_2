@@ -39,7 +39,7 @@ bool jogo_rodando(Jogo *J) {
 }
 
 void atualizar_jogo(Jogo *J) {
-  bool redraw;
+  bool redraw = false;
 
   al_wait_for_event(J->queue, &J->event);
 
