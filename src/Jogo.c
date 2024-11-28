@@ -2,13 +2,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <Jogo.h>
-// #include <allegro5/allegro_font.h>
 
 struct Jogo {
   ALLEGRO_DISPLAY *disp;
   ALLEGRO_TIMER *timer;
   ALLEGRO_EVENT_QUEUE *queue;
-  // ALLEGRO_FONT *font;
   bool *keys;
   ALLEGRO_EVENT event;
 };
