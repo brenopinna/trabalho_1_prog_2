@@ -1,3 +1,4 @@
 bin/*
 object/*
+allegro64/*
 .vscode
