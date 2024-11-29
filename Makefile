@@ -1,36 +1,45 @@
 CC = gcc
-
 CFLAGS = -Iinclude
-
-# Para Windows
-ALLEGRO = allegro64
-
-ifdef ALLEGRO
-CFLAGS = -I${ALLEGRO}/include -Iinclude
-LDFLAGS = -L${ALLEGRO}/lib 
-endif
-
 LDLIBS = -lallegro -lallegro_font -lallegro_ttf -lallegro_image -lallegro_primitives -lallegro_acodec -lallegro_audio
 
-main: object/main.o object/Jogo.o object/Player.o | bin
-	gcc -c main.c -o object/main.o ${CFLAGS}
-	gcc -c src/Jogo.c -o object/Jogo.o ${CFLAGS}
-	gcc -c src/Player.c -o object/Player.o ${CFLAGS}
-	gcc object/main.o object/Jogo.o object/Player.o ${LDLIBS} -o bin/main ${LDFLAGS}
+SRC_DIR = src
+OBJ_DIR = object
+BIN_DIR = bin
 
-object/main.o: main.c | object
+SRC_FILES = main.c src/Jogo.c src/Player.c
 
-object/Jogo.o: src/Jogo.c | object
+OBJ_FILES = $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC_FILES)))
 
-object/Player.o: src/Player.c | object
+# Somente para Windows #####################
+# Descomente a linha abaixo
+# ALLEGRO = allegro64
+ifdef ALLEGRO
+CFLAGS += -I${ALLEGRO}/include
+LDFLAGS = -L${ALLEGRO}/lib 
+endif
+############################################
 
-object:
-	mkdir -p object
+# Alvo principal
+all: $(BIN_DIR)/main
 
-bin:
-	mkdir -p bin
+# Linkagem final
+$(BIN_DIR)/main: $(OBJ_FILES) | $(BIN_DIR)
+	$(CC) $^ -o $@ $(LDFLAGS) $(LDLIBS) $(CFLAGS)
 
-# TODO: consertar o clean para Windows
+# Regra generica (src/*.c)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $< -c -o $@ $(CFLAGS)
+
+# Regra especial para a main.c
+$(OBJ_DIR)/main.o: main.c | $(OBJ_DIR)
+	$(CC) $< -c -o $@ $(CFLAGS)
+
+# Cria os diretorios caso eles nao existam
+$(OBJ_DIR):
+	mkdir $@
+
+$(BIN_DIR):
+	mkdir $@
+
 clean:
-	rm bin/*
-	rm object/*
+	rm $(OBJ_DIR)/* $(BIN_DIR)/*
