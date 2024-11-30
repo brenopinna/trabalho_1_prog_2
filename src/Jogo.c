@@ -101,5 +101,6 @@ void finalizar_jogo(Jogo *J) {
   free(J->keys);
   finalizar_player(J->player);
   finalizar_mapa(J->mapa);
+  al_uninstall_system();
   free(J);
 }
