@@ -2,6 +2,7 @@
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
+#include <Jogo.h>
 
 #define MAP_BLOCK_WIDTH 16
 #define MAP_BLOCK_HEIGHT 12
@@ -18,7 +19,9 @@ typedef struct Map {
 
 Map *init_map(ALLEGRO_DISPLAY *display);
 
-void draw_tile(ALLEGRO_BITMAP *background_sprites, int sx, int sy, int dx, int dy);
+int *mapeia_bloco_piso(const char *s);
+
+void draw_tile(ALLEGRO_BITMAP *background_sprites, const char *block_type, int dx, int dy);
 
 void cria_cenario(ALLEGRO_BITMAP *cenario);
 
