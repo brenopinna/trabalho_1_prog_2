@@ -2,14 +2,15 @@
 
 #include <allegro5/allegro5.h>
 
-#define PLAYER_DIRECTION_DOWN   0
-#define PLAYER_DIRECTION_LEFT   1
-#define PLAYER_DIRECTION_UP     2
-#define PLAYER_DIRECTION_RIGHT  3
+#define PLAYER_DIRECTION_DOWN      0
+#define PLAYER_DIRECTION_LEFT      1
+#define PLAYER_DIRECTION_UP        2
+#define PLAYER_DIRECTION_RIGHT     3
 
-#define PLAYER_SPEED            2
+#define PLAYER_SPEED               2
 
-#define PLAYER_SPRITE_SIZE     32
+#define PLAYER_SPRITE_SIZE        32
+#define PLAYER_SCALED_SPRITE_SIZE 52
 
 typedef struct Player {
   ALLEGRO_BITMAP *image;

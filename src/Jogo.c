@@ -4,6 +4,7 @@
 #include <allegro5/allegro_image.h>
 #include <Jogo.h>
 #include <Player.h>
+#include <Mapa.h>
 
 struct Jogo {
   ALLEGRO_DISPLAY *disp;
@@ -11,6 +12,7 @@ struct Jogo {
   ALLEGRO_EVENT_QUEUE *queue;
   ALLEGRO_EVENT event;
   Player *player;
+  Map *mapa;
   bool *keys;
   int frame_count;
 };
@@ -22,11 +24,12 @@ Jogo *novo_jogo() {
 
   Jogo *J = malloc(sizeof(Jogo));
 
-  J->disp = al_create_display(600, 400);
+  J->disp = al_create_display(MAP_PX_WIDTH, MAP_PX_HEIGHT);
   J->timer = al_create_timer(1.0 / 100.0);
   J->queue = al_create_event_queue();
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool));
   J->player = criar_player();
+  J->mapa = init_map(J->disp);
   J->frame_count = 0;
 
   al_register_event_source(J->queue, al_get_keyboard_event_source());
@@ -82,10 +85,9 @@ void atualizar_jogo(Jogo *J) {
       move_player(J->player, PLAYER_DIRECTION_LEFT);
     }
 
-    al_clear_to_color(al_map_rgb(150, 150, 200));
-    //TODO: verificar os tamanhos do player no mapa e aplicar no scale
-    // al_draw_scaled_bitmap(player->image, player->frame * PLAYER_SPRITE_SIZE, player->direction * PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, player->x, player->y, 64, 64, 0);
-    al_draw_bitmap_region(player->image, player->frame * PLAYER_SPRITE_SIZE, player->direction * PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, player->x, player->y, 0);
+    al_draw_bitmap(J->mapa->background, 0, 0, 0);
+    al_draw_scaled_bitmap(player->image, player->frame * PLAYER_SPRITE_SIZE, player->direction * PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, player->x, player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
+
     al_flip_display();
 
     redraw = false;
@@ -98,5 +100,6 @@ void finalizar_jogo(Jogo *J) {
   al_destroy_event_queue(J->queue);
   free(J->keys);
   finalizar_player(J->player);
+  finalizar_mapa(J->mapa);
   free(J);
 }
