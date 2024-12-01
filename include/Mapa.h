@@ -25,13 +25,13 @@ typedef struct Map {
   char ***objectset;
 } Map;
 
-Map *init_map(ALLEGRO_DISPLAY *display);
+Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename);
 
 char ***cria_matriz_de_codigos_de_blocos();
 
 void finaliza_matriz_de_codigos_de_blocos(char ***matriz);
 
-void cria_cenario(ALLEGRO_BITMAP *cenario, Map *m);
+void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_filename);
 
 void draw_tile(ALLEGRO_BITMAP *background_sprites, const char *block_type, int dx, int dy);
 

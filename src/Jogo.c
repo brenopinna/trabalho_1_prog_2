@@ -15,7 +15,8 @@ struct Jogo {
   ALLEGRO_EVENT event;
   Player *player;
   ALLEGRO_FONT *f;
-  Map *mapa;
+  Map **mapas;
+  int mapa;
   bool *keys;
   int frame_count;
 };
@@ -36,7 +37,9 @@ Jogo *novo_jogo() {
   J->queue = al_create_event_queue();
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool));
   J->player = criar_player();
-  J->mapa = init_map(J->disp);
+  J->mapas = malloc(2 * sizeof(Map *));
+  J->mapas[0] = init_map(J->disp, "map_2.txt");
+  J->mapa = 1;
   J->frame_count = 0;
 
   al_register_event_source(J->queue, al_get_keyboard_event_source());
@@ -82,17 +85,19 @@ void atualizar_jogo(Jogo *J) {
       J->frame_count = 0;
     }
 
+    Map *mapa_atual = J->mapas[J->mapa - 1];
+
     if (keys[ALLEGRO_KEY_UP]) {
-      move_player(J->player, PLAYER_DIRECTION_UP, J->mapa);
+      move_player(J->player, PLAYER_DIRECTION_UP, mapa_atual);
     } else if (keys[ALLEGRO_KEY_DOWN]) {
-      move_player(J->player, PLAYER_DIRECTION_DOWN, J->mapa);
+      move_player(J->player, PLAYER_DIRECTION_DOWN, mapa_atual);
     } else if (keys[ALLEGRO_KEY_RIGHT]) {
-      move_player(J->player, PLAYER_DIRECTION_RIGHT, J->mapa);
+      move_player(J->player, PLAYER_DIRECTION_RIGHT, mapa_atual);
     } else if (keys[ALLEGRO_KEY_LEFT]) {
-      move_player(J->player, PLAYER_DIRECTION_LEFT, J->mapa);
+      move_player(J->player, PLAYER_DIRECTION_LEFT, mapa_atual);
     }
 
-    al_draw_bitmap(J->mapa->background, 0, 0, 0);
+    al_draw_bitmap(mapa_atual->background, 0, 0, 0);
     al_draw_scaled_bitmap(player->image, player->frame * PLAYER_SPRITE_SIZE, player->direction * PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, player->x, player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
 
     // TODO: Remover esa exibicao de texto, to usando so pra debugar
@@ -100,10 +105,10 @@ void atualizar_jogo(Jogo *J) {
 
     sprintf(s, "x: %d, y: %d\nUPRIGHT: %s\nUPLEFT: %s\nBOTTOMRIGHT: %s\nBOTTOMLEFT: %s\n",
             J->player->x, J->player->y,
-            get_block_from_position(J->mapa, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y),
-            get_block_from_position(J->mapa, J->player->x, J->player->y),
-            get_block_from_position(J->mapa, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
-            get_block_from_position(J->mapa, J->player->x, J->player->y + PLAYER_SCALED_SPRITE_SIZE)
+            get_block_from_position(mapa_atual, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y),
+            get_block_from_position(mapa_atual, J->player->x, J->player->y),
+            get_block_from_position(mapa_atual, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
+            get_block_from_position(mapa_atual, J->player->x, J->player->y + PLAYER_SCALED_SPRITE_SIZE)
     );
 
     al_draw_multiline_text(J->f, al_map_rgb(0, 0, 0), 10, 10, 200, 10, 0, s);
@@ -123,7 +128,9 @@ void finalizar_jogo(Jogo *J) {
   free(J->keys);
   al_destroy_font(J->f);
   finalizar_player(J->player);
-  finalizar_mapa(J->mapa);
+  finalizar_mapa(J->mapas[0]);
+  finalizar_mapa(J->mapas[1]);
+  free(J->mapas);
   al_uninstall_system();
   free(J);
 }

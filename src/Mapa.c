@@ -6,7 +6,7 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
 
-Map *init_map(ALLEGRO_DISPLAY *display) {
+Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
   Map *m = malloc(sizeof(Map));
 
   m->background = al_create_bitmap(MAP_PX_WIDTH, MAP_PX_HEIGHT);
@@ -16,7 +16,7 @@ Map *init_map(ALLEGRO_DISPLAY *display) {
   m->objectset = cria_matriz_de_codigos_de_blocos();
 
   ALLEGRO_BITMAP *background_sprites = al_load_bitmap("assets/background-sprites.png");
-  cria_cenario(background_sprites, m);
+  cria_cenario(background_sprites, m, map_filename);
   al_destroy_bitmap(background_sprites);
 
   al_set_target_backbuffer(display);
@@ -47,8 +47,8 @@ void finaliza_matriz_de_codigos_de_blocos(char ***matriz) {
   free(matriz);
 }
 
-void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m) {
-  FILE *f = fopen("map.txt", "r");
+void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_filename) {
+  FILE *f = fopen(map_filename, "r");
 
   if (f == NULL) {
     puts("\033[38;5;196mNao foi possivel abrir o arquivo do mapa. Reinicie o jogo e tente novamente.\033[0m");
