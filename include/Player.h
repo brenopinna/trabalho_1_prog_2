@@ -1,6 +1,7 @@
 #pragma once
 
 #include <allegro5/allegro5.h>
+#include <Mapa.h>
 
 #define PLAYER_DIRECTION_DOWN      0
 #define PLAYER_DIRECTION_LEFT      1
@@ -20,6 +21,10 @@ typedef struct Player {
   int andando;
   int direction;
   int frame;
+  bool can_move_up;
+  bool can_move_down;
+  bool can_move_left;
+  bool can_move_right;
 } Player;
 
 Player *criar_player();
@@ -28,6 +33,8 @@ void parar_player(Player *P);
 
 void muda_frame(Player *P);
 
-void move_player(Player *P, int direction);
+void verifica_movimento(Map *M, Player *P);
+
+void move_player(Player *P, int direction, Map *M);
 
 void finalizar_player(Player *P);

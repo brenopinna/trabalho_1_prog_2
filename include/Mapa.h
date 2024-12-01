@@ -15,14 +15,24 @@
 
 typedef struct Map {
   ALLEGRO_BITMAP *background;
+  char ***tileset;
+  char ***objectset;
 } Map;
 
 Map *init_map(ALLEGRO_DISPLAY *display);
 
-int *mapeia_bloco_piso(const char *s);
+char ***cria_matriz_de_codigos_de_blocos();
+
+void finaliza_matriz_de_codigos_de_blocos(char ***matriz);
+
+void cria_cenario(ALLEGRO_BITMAP *cenario, Map *m);
 
 void draw_tile(ALLEGRO_BITMAP *background_sprites, const char *block_type, int dx, int dy);
 
-void cria_cenario(ALLEGRO_BITMAP *cenario);
+int *mapeia_codigo_para_bloco(const char *s);
+
+bool bloco_andavel(const char *block);
+
+char *get_block_from_position(Map *M, int x, int y);
 
 void finalizar_mapa(Map *m);
