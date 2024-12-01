@@ -21,6 +21,12 @@ struct Jogo {
   int frame_count;
 };
 
+//TODO: ver uma forma de renderizar a arvore em somente 1 bloco
+/*
+TODO: precisa colidir com a parte debaixo e passar atras da parte de cima
+TODO: tem que ter uma renderizacao diferenciada por isso
+*/
+
 Jogo *novo_jogo() {
   //TODO: Remover fontes, usei so pra testar.
   al_init();
@@ -38,7 +44,7 @@ Jogo *novo_jogo() {
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool));
   J->player = criar_player();
   J->mapas = malloc(2 * sizeof(Map *));
-  J->mapas[0] = init_map(J->disp, "map_2.txt");
+  J->mapas[0] = init_map(J->disp, "map_1.txt");
   J->mapa = 1;
   J->frame_count = 0;
 
@@ -97,6 +103,20 @@ void atualizar_jogo(Jogo *J) {
       move_player(J->player, PLAYER_DIRECTION_LEFT, mapa_atual);
     }
 
+    if (J->mapa == 1 && J->player->x >= MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE) {
+      J->mapa = 2;
+      finalizar_mapa(mapa_atual);
+      mapa_atual = init_map(J->disp, "map_2.txt");
+      J->mapas[1] = mapa_atual;
+      J->player->x = 1;
+    } else if (J->mapa == 2 && J->player->x <= 0) {
+      J->mapa = 1;
+      finalizar_mapa(mapa_atual);
+      mapa_atual = init_map(J->disp, "map_1.txt");
+      J->mapas[0] = mapa_atual;
+      J->player->x = MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE - 1;
+    }
+
     al_draw_bitmap(mapa_atual->background, 0, 0, 0);
     al_draw_scaled_bitmap(player->image, player->frame * PLAYER_SPRITE_SIZE, player->direction * PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, player->x, player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
 
@@ -128,8 +148,7 @@ void finalizar_jogo(Jogo *J) {
   free(J->keys);
   al_destroy_font(J->f);
   finalizar_player(J->player);
-  finalizar_mapa(J->mapas[0]);
-  finalizar_mapa(J->mapas[1]);
+  finalizar_mapa(J->mapas[J->mapa - 1]);
   free(J->mapas);
   al_uninstall_system();
   free(J);
