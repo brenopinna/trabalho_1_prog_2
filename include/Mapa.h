@@ -13,6 +13,12 @@
 #define MAP_PX_WIDTH (MAP_BLOCK_WIDTH * BLOCK_SCALED_SPRITE_SIZE)
 #define MAP_PX_HEIGHT (MAP_BLOCK_HEIGHT * BLOCK_SCALED_SPRITE_SIZE)
 
+#define GRASS_BLOCK        'G'
+#define GRASS_BLOCK_CORNER 'Q'
+#define LAND_BLOCK         'T'
+#define WATER_BLOCK        'A'
+#define TREE_BLOCK         'a'
+
 typedef struct Map {
   ALLEGRO_BITMAP *background;
   char ***tileset;
