@@ -62,7 +62,7 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
       fscanf(f, "%s", s);
       strcpy(m->tileset[line][col], s);
       draw_tile(background_sprites, s, col, line);
-      if (!bloco_andavel(s) && s[0] != WATER_BLOCK) {
+      if (!bloco_andavel(s) && s[0] != WATER_BLOCK && s[0] != WATER_BLOCK_CORNER && s[0] != WATER_LAND_BLOCK) {
         if (line > 0 && !bloco_andavel(m->tileset[line - 1][col])) {
           draw_tile(background_sprites, "a2", col, line);
           draw_tile(background_sprites, "a1", col, line - 1);
@@ -98,12 +98,18 @@ int *mapeia_codigo_para_bloco(const char *s) {
   } else if (c == LAND_BLOCK) {
     x = 5 + (n - 1) % 3;
     y = (n - 1) / 3;
+  } else if (c == WATER_LAND_BLOCK) {
+    x = 15 + (n - 1) % 3;
+    y = y = (n - 1) / 3;
   } else if (c == GRASS_BLOCK_CORNER) {
     x = 3 + (n - 1) % 2;
     y = (n - 1) / 2;
   } else if (c == WATER_BLOCK) {
     x = 10 + (n - 1) % 3;
     y = (n - 1) / 3;
+  } else if (c == WATER_BLOCK_CORNER) {
+    x = 13 + (n - 1) % 2;
+    y = (n - 1) / 2;
   } else if (c == TREE_BLOCK) {
     x = 0;
     y = 9 + n;
@@ -116,7 +122,10 @@ int *mapeia_codigo_para_bloco(const char *s) {
 }
 
 bool bloco_andavel(const char *block) {
-  bool andavel = block[0] != WATER_BLOCK && block[0] != LAND_BLOCK;
+  bool andavel = block[0] != WATER_BLOCK &&
+    block[0] != LAND_BLOCK &&
+    block[0] != WATER_LAND_BLOCK &&
+    block[0] != WATER_BLOCK_CORNER;
 
   return andavel;
 }
