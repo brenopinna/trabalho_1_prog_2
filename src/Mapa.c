@@ -51,7 +51,7 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
   FILE *f = fopen(map_filename, "r");
 
   if (f == NULL) {
-    puts("\033[38;5;196mNao foi possivel abrir o arquivo do mapa. Reinicie o jogo e tente novamente.\033[0m");
+    puts("Nao foi possivel abrir o arquivo do mapa. Reinicie o jogo e tente novamente.");
   }
 
   char *s = malloc(sizeof(char) * 2);
