@@ -41,7 +41,7 @@ TODO: tem que ter uma renderizacao diferenciada por isso
 
 Jogo *novo_jogo() {
   //TODO: Remover fontes, usei so pra testar.
-  
+
   /* Incialização dos sistemas do Allegro necessários. */
   al_init();
   al_init_image_addon();
@@ -50,11 +50,11 @@ Jogo *novo_jogo() {
 
   /* Alocando uma nova struct Jogo dinamicamente e incicializando-a. */
   Jogo *J = malloc(sizeof(Jogo));
-  
+
   // Dados usados internamente pelo Allegro.
   J->f = al_create_builtin_font();
   J->disp = al_create_display(MAP_PX_WIDTH, MAP_PX_HEIGHT);
-  J->timer = al_create_timer(1.0 / 100.0);
+  J->timer = al_create_timer(1.0 / 120.0);
   J->queue = al_create_event_queue();
 
   // Dados usados pelo jogo em si.
@@ -95,15 +95,11 @@ bool jogo_rodando(Jogo *J) {
 */
 
 void atualizar_jogo(Jogo *J) {
-  bool redraw = true;
-
   al_wait_for_event(J->queue, &J->event);
 
   ALLEGRO_EVENT event = J->event;
 
-  if (event.type == ALLEGRO_EVENT_TIMER) {
-    redraw = true;
-  } else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+  if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
     J->keys[event.keyboard.keycode] = true;
   } else if (event.type == ALLEGRO_EVENT_KEY_UP) {
     J->keys[event.keyboard.keycode] = false;
@@ -113,7 +109,7 @@ void atualizar_jogo(Jogo *J) {
   Player *player = J->player;
   const bool *keys = J->keys;
 
-  if (redraw && al_is_event_queue_empty(J->queue)) {
+  if (event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
     J->frame_count++;
     bool troca_mapa = false;
 
@@ -180,8 +176,6 @@ void atualizar_jogo(Jogo *J) {
     al_draw_multiline_text(J->f, al_map_rgb(0, 0, 0), 10, 10, 200, 10, 0, s);
 
     al_flip_display();
-
-    redraw = false;
   }
 }
 
