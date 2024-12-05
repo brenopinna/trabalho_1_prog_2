@@ -97,19 +97,17 @@ bool jogo_rodando(Jogo *J) {
 void atualizar_jogo(Jogo *J) {
   al_wait_for_event(J->queue, &J->event);
 
-  ALLEGRO_EVENT event = J->event;
-
-  if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-    J->keys[event.keyboard.keycode] = true;
-  } else if (event.type == ALLEGRO_EVENT_KEY_UP) {
-    J->keys[event.keyboard.keycode] = false;
+  if (J->event.type == ALLEGRO_EVENT_KEY_DOWN) {
+    J->keys[J->event.keyboard.keycode] = true;
+  } else if (J->event.type == ALLEGRO_EVENT_KEY_UP) {
+    J->keys[J->event.keyboard.keycode] = false;
     parar_player(J->player);
   }
 
   Player *player = J->player;
   const bool *keys = J->keys;
 
-  if (event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
+  if (J->event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
     J->frame_count++;
     bool troca_mapa = false;
 
