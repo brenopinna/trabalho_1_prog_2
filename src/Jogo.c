@@ -8,17 +8,24 @@
 #include <Player.h>
 #include <Mapa.h>
 
+/*
+  Definição da struct Jogo. Ela armazena todas as informações
+  necessárias para manter o jogo funcionando.
+*/
+
 struct Jogo {
-  ALLEGRO_DISPLAY *disp;
-  ALLEGRO_TIMER *timer;
-  ALLEGRO_EVENT_QUEUE *queue;
-  ALLEGRO_EVENT event;
-  Player *player;
+  // Dados usados internamente pelo Allegro..
+  ALLEGRO_DISPLAY *disp; // Janela.
+  ALLEGRO_TIMER *timer; // Temporizador.
+  ALLEGRO_EVENT_QUEUE *queue; // Fila de eventos.
+  ALLEGRO_EVENT event; // Evento.
   ALLEGRO_FONT *f;
-  Map **mapas;
-  int mapa;
-  bool *keys;
-  int frame_count;
+
+  Player *player;  // Ponteiro para uma struct Player.
+  Map **mapas; // Vetor de ponteiros para structs Mapa. Mantém a lista dos mapas do jogo.
+  int mapa; // Mantém registrado qual mapa está aberto no momento.
+  bool *keys; // Vetor que armazena o estado das teclas do teclado.
+  int frame_count; // Contagem de quadros renderizados. Usada para controlar o timing da animação do jogador.
 };
 
 //TODO: ver uma forma de renderizar a arvore em somente 1 bloco
@@ -27,34 +34,52 @@ TODO: precisa colidir com a parte debaixo e passar atras da parte de cima
 TODO: tem que ter uma renderizacao diferenciada por isso
 */
 
+/*
+  Função que faz a configuração inicial de um novo jogo.
+  Retorna um ponteiro para uma struct Jogo alocada dinamicamente.
+*/
+
 Jogo *novo_jogo() {
   //TODO: Remover fontes, usei so pra testar.
+  
+  /* Incialização dos sistemas do Allegro necessários. */
   al_init();
   al_init_image_addon();
   al_install_keyboard();
   al_init_font_addon();
 
+  /* Alocando uma nova struct Jogo dinamicamente e incicializando-a. */
   Jogo *J = malloc(sizeof(Jogo));
-
+  
+  // Dados usados internamente pelo Allegro.
   J->f = al_create_builtin_font();
-
   J->disp = al_create_display(MAP_PX_WIDTH, MAP_PX_HEIGHT);
   J->timer = al_create_timer(1.0 / 100.0);
   J->queue = al_create_event_queue();
-  J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool));
-  J->player = criar_player();
-  J->mapas = malloc(2 * sizeof(Map *));
-  J->mapas[0] = init_map(J->disp, "map_1.txt");
-  J->mapa = 1;
-  J->frame_count = 0;
 
+  // Dados usados pelo jogo em si.
+  J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializando o vetor do teclado com 0s.
+  J->player = criar_player(); // Função definida em Player.c.
+  J->mapas = malloc(2 * sizeof(Map *)); // Reserva espaço para dois mapas.
+  J->mapas[0] = init_map(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
+  J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
+  J->frame_count = 0; // Inicia a contagem de quadros em 0.
+
+  /* Registrando as fontes de eventos utilizadas. */
   al_register_event_source(J->queue, al_get_keyboard_event_source());
   al_register_event_source(J->queue, al_get_display_event_source(J->disp));
   al_register_event_source(J->queue, al_get_timer_event_source(J->timer));
+
+  /* Inicia o temporizador. */
   al_start_timer(J->timer);
 
   return J;
 }
+
+/*
+  Função que verifica se o jogo ainda está rodando. O jogo só será
+  encerrado quando o usuário apertar a tecla ESC ou fechar a janela.
+*/
 
 bool jogo_rodando(Jogo *J) {
   if (J->event.type == ALLEGRO_EVENT_DISPLAY_CLOSE ||
@@ -63,6 +88,11 @@ bool jogo_rodando(Jogo *J) {
 
   return true;
 }
+
+/*
+  Função que atualiza o jogo. Ela é chamada em loop pela função main
+  até que o jogo seja fechado.
+*/
 
 void atualizar_jogo(Jogo *J) {
   bool redraw = true;
