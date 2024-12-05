@@ -104,8 +104,6 @@ void atualizar_jogo(Jogo *J) {
     parar_player(J->player);
   }
 
-  const bool *keys = J->keys;
-
   if (J->event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
     J->frame_count++;
     bool troca_mapa = false;
@@ -117,18 +115,18 @@ void atualizar_jogo(Jogo *J) {
 
     Map *mapa_atual = J->mapas[J->mapa - 1];
 
-    if (keys[ALLEGRO_KEY_UP]) {
+    if (J->keys[ALLEGRO_KEY_UP]) {
       move_player(J->player, PLAYER_DIRECTION_UP, mapa_atual);
-    } else if (keys[ALLEGRO_KEY_DOWN]) {
+    } else if (J->keys[ALLEGRO_KEY_DOWN]) {
       move_player(J->player, PLAYER_DIRECTION_DOWN, mapa_atual);
-    } else if (keys[ALLEGRO_KEY_RIGHT]) {
+    } else if (J->keys[ALLEGRO_KEY_RIGHT]) {
       move_player(J->player, PLAYER_DIRECTION_RIGHT, mapa_atual);
-    } else if (keys[ALLEGRO_KEY_LEFT]) {
+    } else if (J->keys[ALLEGRO_KEY_LEFT]) {
       move_player(J->player, PLAYER_DIRECTION_LEFT, mapa_atual);
-    } else if (keys[ALLEGRO_KEY_1]) {
+    } else if (J->keys[ALLEGRO_KEY_1]) {
       if (J->mapa != 1)
         troca_mapa = true;
-    } else if (keys[ALLEGRO_KEY_2]) {
+    } else if (J->keys[ALLEGRO_KEY_2]) {
       if (J->mapa != 2)
         troca_mapa = true;
     }
