@@ -104,14 +104,13 @@ void atualizar_jogo(Jogo *J) {
     parar_player(J->player);
   }
 
-  Player *player = J->player;
   const bool *keys = J->keys;
 
   if (J->event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
     J->frame_count++;
     bool troca_mapa = false;
 
-    if (J->frame_count >= 10 && player->andando) {
+    if (J->frame_count >= 10 && J->player->andando) {
       muda_frame(J->player);
       J->frame_count = 0;
     }
@@ -158,7 +157,7 @@ void atualizar_jogo(Jogo *J) {
     }
 
     al_draw_bitmap(mapa_atual->background, 0, 0, 0);
-    al_draw_scaled_bitmap(player->image, player->frame * PLAYER_SPRITE_SIZE, player->direction * PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, player->x, player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
+    al_draw_scaled_bitmap(J->player->image, J->player->frame * PLAYER_SPRITE_SIZE, J->player->direction * PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, J->player->x, J->player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
 
     // TODO: Remover esa exibicao de texto, to usando so pra debugar
     char s[200];
