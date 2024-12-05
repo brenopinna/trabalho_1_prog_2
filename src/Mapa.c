@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include <Mapa.h>
 #include <Jogo.h>
 #include <allegro5/allegro5.h>
@@ -30,7 +31,7 @@ char ***cria_matriz_de_codigos_de_blocos() {
   for (int i = 0; i < MAP_BLOCK_HEIGHT; i++) {
     mat[i] = calloc(MAP_BLOCK_WIDTH, sizeof(char *));
     for (int j = 0; j < MAP_BLOCK_WIDTH; j++) {
-      mat[i][j] = calloc(2, sizeof(char));
+      mat[i][j] = calloc(3, sizeof(char));
     }
   }
 
@@ -54,12 +55,12 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
     puts("Nao foi possivel abrir o arquivo do mapa. Reinicie o jogo e tente novamente.");
   }
 
-  char *s = malloc(sizeof(char) * 2);
-  int cont = 0;
+  char *s = malloc(sizeof(char) * 3);
 
   for (int line = 0; line < MAP_BLOCK_HEIGHT; line++) {
     for (int col = 0; col < MAP_BLOCK_WIDTH; col++) {
-      fscanf(f, "%s", s);
+      int n = fscanf(f, "%s", s);
+      assert(n != 0);
       strcpy(m->tileset[line][col], s);
       draw_tile(background_sprites, s, col, line);
       if (!bloco_andavel(s) && s[0] != WATER_BLOCK && s[0] != WATER_BLOCK_CORNER && s[0] != WATER_LAND_BLOCK) {
@@ -100,7 +101,7 @@ int *mapeia_codigo_para_bloco(const char *s) {
     y = (n - 1) / 3;
   } else if (c == WATER_LAND_BLOCK) {
     x = 15 + (n - 1) % 3;
-    y = y = (n - 1) / 3;
+    y = (n - 1) / 3;
   } else if (c == GRASS_BLOCK_CORNER) {
     x = 3 + (n - 1) % 2;
     y = (n - 1) / 2;
@@ -131,7 +132,7 @@ bool bloco_andavel(const char *block) {
 }
 
 char *get_block_from_position(Map *M, int x, int y) {
-  char *c = calloc(2, sizeof(char));
+  char *c = calloc(3, sizeof(char));
   int col = x / BLOCK_SCALED_SPRITE_SIZE;
   if (col >= MAP_BLOCK_WIDTH) col--;
   int lin = y / BLOCK_SCALED_SPRITE_SIZE;

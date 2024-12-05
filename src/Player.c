@@ -18,7 +18,7 @@ Player *criar_player() {
   P->frame = 0;
 
   return P;
-};
+}
 
 void parar_player(Player *P) {
   P->andando = false;
