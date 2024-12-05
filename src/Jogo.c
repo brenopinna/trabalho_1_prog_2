@@ -85,6 +85,7 @@ void atualizar_jogo(Jogo *J) {
 
   if (redraw && al_is_event_queue_empty(J->queue)) {
     J->frame_count++;
+    bool troca_mapa = false;
 
     if (J->frame_count >= 10 && player->andando) {
       muda_frame(J->player);
@@ -101,20 +102,35 @@ void atualizar_jogo(Jogo *J) {
       move_player(J->player, PLAYER_DIRECTION_RIGHT, mapa_atual);
     } else if (keys[ALLEGRO_KEY_LEFT]) {
       move_player(J->player, PLAYER_DIRECTION_LEFT, mapa_atual);
+    } else if (keys[ALLEGRO_KEY_1]) {
+      if (J->mapa != 1)
+        troca_mapa = true;
+    } else if (keys[ALLEGRO_KEY_2]) {
+      if (J->mapa != 2)
+        troca_mapa = true;
     }
 
-    if (J->mapa == 1 && J->player->x >= MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE) {
+    // TODO: isolar essa parte de trocar mapa em outra
+    // TODO: e refatorar ela
+
+    if (J->mapa == 1 && (J->player->x >= MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE || troca_mapa)) {
       J->mapa = 2;
       finalizar_mapa(mapa_atual);
       mapa_atual = init_map(J->disp, "map_2.txt");
       J->mapas[1] = mapa_atual;
       J->player->x = 1;
-    } else if (J->mapa == 2 && J->player->x <= 0) {
+    } else if (J->mapa == 2 && (J->player->x <= 0 || troca_mapa)) {
       J->mapa = 1;
       finalizar_mapa(mapa_atual);
       mapa_atual = init_map(J->disp, "map_1.txt");
       J->mapas[0] = mapa_atual;
       J->player->x = MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE - 1;
+    }
+
+    if (troca_mapa) {
+      J->player->x = PLAYER_SCALED_SPRITE_SIZE;
+      J->player->y = PLAYER_SCALED_SPRITE_SIZE;
+      J->player->direction = PLAYER_DIRECTION_DOWN;
     }
 
     al_draw_bitmap(mapa_atual->background, 0, 0, 0);
@@ -132,8 +148,6 @@ void atualizar_jogo(Jogo *J) {
     );
 
     al_draw_multiline_text(J->f, al_map_rgb(0, 0, 0), 10, 10, 200, 10, 0, s);
-
-
 
     al_flip_display();
 

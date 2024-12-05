@@ -16,7 +16,9 @@
 #define GRASS_BLOCK        'G'
 #define GRASS_BLOCK_CORNER 'Q'
 #define LAND_BLOCK         'T'
+#define WATER_LAND_BLOCK   't'
 #define WATER_BLOCK        'A'
+#define WATER_BLOCK_CORNER 'q'
 #define TREE_BLOCK         'a'
 
 typedef struct Map {
