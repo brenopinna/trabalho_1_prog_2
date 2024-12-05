@@ -14,7 +14,7 @@
 */
 
 struct Jogo {
-  // Dados usados internamente pelo Allegro..
+  // Dados usados internamente pelo Allegro.
   ALLEGRO_DISPLAY *disp; // Janela.
   ALLEGRO_TIMER *timer; // Temporizador.
   ALLEGRO_EVENT_QUEUE *queue; // Fila de eventos.
@@ -42,13 +42,13 @@ TODO: tem que ter uma renderizacao diferenciada por isso
 Jogo *novo_jogo() {
   //TODO: Remover fontes, usei so pra testar.
 
-  /* Incialização dos sistemas do Allegro necessários. */
+  /* Inicialização dos sistemas do Allegro necessários. */
   al_init();
   al_init_image_addon();
   al_install_keyboard();
   al_init_font_addon();
 
-  /* Alocando uma nova struct Jogo dinamicamente e incicializando-a. */
+  /* Alocando uma nova struct Jogo dinamicamente e inicializando-a. */
   Jogo *J = malloc(sizeof(Jogo));
 
   // Dados usados internamente pelo Allegro.
@@ -95,16 +95,19 @@ bool jogo_rodando(Jogo *J) {
 */
 
 void atualizar_jogo(Jogo *J) {
+  /* Espera um evento acontecer. Assim que acontecer, salva as suas informações em J->event.*/
   al_wait_for_event(J->queue, &J->event);
 
+  /* Verifica se uma tecla foi pressionada ou solta e registra no vetor de teclas. */
   if (J->event.type == ALLEGRO_EVENT_KEY_DOWN) {
     J->keys[J->event.keyboard.keycode] = true;
   } else if (J->event.type == ALLEGRO_EVENT_KEY_UP) {
     J->keys[J->event.keyboard.keycode] = false;
-    parar_player(J->player);
+    parar_player(J->player); // Se qualquer tecla for solta, o player para.
   }
 
-  if (J->event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
+  /* Lógica principal da atualização do jogo. */
+  if (J->event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) { // Sincroniza com o timer, e só executa quando não houver eventos pendentes.
     J->frame_count++;
     bool troca_mapa = false;
 
@@ -160,12 +163,13 @@ void atualizar_jogo(Jogo *J) {
     // TODO: Remover esa exibicao de texto, to usando so pra debugar
     char s[200];
 
-    sprintf(s, "x: %d, y: %d\nUPRIGHT: %s\nUPLEFT: %s\nBOTTOMRIGHT: %s\nBOTTOMLEFT: %s\n",
+    sprintf(s, "x: %d, y: %d\nUPRIGHT: %s\nUPLEFT: %s\nBOTTOMRIGHT: %s\nBOTTOMLEFT: %s\nPFRAME: %d\n",
             J->player->x, J->player->y,
             get_block_from_position(mapa_atual, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y),
             get_block_from_position(mapa_atual, J->player->x, J->player->y),
             get_block_from_position(mapa_atual, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
-            get_block_from_position(mapa_atual, J->player->x, J->player->y + PLAYER_SCALED_SPRITE_SIZE)
+            get_block_from_position(mapa_atual, J->player->x, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
+            J->player->frame
     );
 
     al_draw_multiline_text(J->f, al_map_rgb(0, 0, 0), 10, 10, 200, 10, 0, s);
