@@ -16,6 +16,7 @@ Player *criar_player() {
   P->andando = false;
   P->direction = PLAYER_DIRECTION_DOWN;
   P->frame = 0;
+  P->revert_frame = false;
 
   return P;
 }
@@ -23,13 +24,16 @@ Player *criar_player() {
 void parar_player(Player *P) {
   P->andando = false;
   P->frame = 0;
+  P->revert_frame = false;
 }
 
 void muda_frame(Player *P) {
-  P->frame++;
-  if (P->frame > 4) {
-    P->frame = 0;
+  if (P->frame == 4) {
+    P->revert_frame = true;
+  } else if (P->frame == 1) {
+    P->revert_frame = false;
   }
+  P->frame += P->revert_frame ? -1 : 1;
 }
 
 void verifica_movimento(Map *M, Player *P) {

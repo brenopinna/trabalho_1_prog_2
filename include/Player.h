@@ -21,6 +21,7 @@ typedef struct Player {
   int andando;
   int direction;
   int frame;
+  bool revert_frame;
   bool can_move_up;
   bool can_move_down;
   bool can_move_left;
