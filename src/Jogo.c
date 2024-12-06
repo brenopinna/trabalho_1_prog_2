@@ -48,7 +48,7 @@ Jogo *novo_jogo() {
   al_install_keyboard();
   al_init_font_addon();
 
-  /* Alocando uma nova struct Jogo dinamicamente e inicializando-a. */
+  /* Aloca uma nova struct Jogo dinamicamente e inicializa-a. */
   Jogo *J = malloc(sizeof(Jogo));
 
   // Dados usados internamente pelo Allegro.
