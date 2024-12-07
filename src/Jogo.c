@@ -103,7 +103,7 @@ void atualizar_jogo(Jogo *J) {
     J->keys[J->event.keyboard.keycode] = true;
   } else if (J->event.type == ALLEGRO_EVENT_KEY_UP) {
     J->keys[J->event.keyboard.keycode] = false;
-    parar_player(J->player); // Se qualquer tecla for solta, o player para.
+    parar_player(J->player); // Se qualquer tecla for solta, o jogador para.
   }
 
   /* Lógica principal da atualização do jogo. Só é executada em sincronia com
