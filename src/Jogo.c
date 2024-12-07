@@ -209,18 +209,22 @@ void atualizar_jogo(Jogo *J) {
 */
 
 void finalizar_jogo(Jogo *J) {
-  /* Libera a memória alocada para os dados usados internamente pelo Allegro. */
+  /* Libera a memória dos dados usados internamente pelo Allegro. */
   al_destroy_display(J->disp);
   al_destroy_timer(J->timer);
   al_destroy_event_queue(J->queue);
   al_destroy_font(J->f);
 
+  /* Libera a memória alocada dos dados alocados
+     dinamicamente que fazem parte da struct Jogo. */
   free(J->keys);
-  finalizar_mapa(J->mapas[J->mapa - 1]);
+  finalizar_mapa(J->mapas[J->mapa - 1]); // Função definida em Mapa.c.
   free(J->mapas);
-  finalizar_player(J->player);
+  finalizar_player(J->player); // Função definida em Player.c.
 
+  /* Finalização definitiva do Allegro. */
   al_uninstall_system();
 
+  /* Libera a memória da struct Jogo em si. */
   free(J);
 }
