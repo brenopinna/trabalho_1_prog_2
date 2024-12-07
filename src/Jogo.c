@@ -120,21 +120,18 @@ void atualizar_jogo(Jogo *J) {
       J->frame_count = 0; // Reinicia a contagem de quadros renderizados.
     }
 
-    /* J->mapas[J->mapa - 1] é o mapa atual. */
-    Map *mapa_atual = J->mapas[J->mapa - 1];
-
     /* Verifica se o usuário deu algum comando de teclado válido
        e executa a ação correspondente ao comando detectado. */
 
     /* Movimento do jogador. Função move_player definida em Player.c. */
     if (J->keys[ALLEGRO_KEY_UP]) { // Para cima.
-      move_player(J->player, PLAYER_DIRECTION_UP, mapa_atual);
+      move_player(J->player, PLAYER_DIRECTION_UP, J->mapas[J->mapa - 1]); // J->mapas[J->mapa - 1] é o mapa atual.
     } else if (J->keys[ALLEGRO_KEY_DOWN]) { // Para baixo.
-      move_player(J->player, PLAYER_DIRECTION_DOWN, mapa_atual);
+      move_player(J->player, PLAYER_DIRECTION_DOWN, J->mapas[J->mapa - 1]);
     } else if (J->keys[ALLEGRO_KEY_RIGHT]) { // Para a direita.
-      move_player(J->player, PLAYER_DIRECTION_RIGHT, mapa_atual);
+      move_player(J->player, PLAYER_DIRECTION_RIGHT, J->mapas[J->mapa - 1]);
     } else if (J->keys[ALLEGRO_KEY_LEFT]) { // Para a esquerda.
-      move_player(J->player, PLAYER_DIRECTION_LEFT, mapa_atual);
+      move_player(J->player, PLAYER_DIRECTION_LEFT, J->mapas[J->mapa - 1]);
     }
 
     /* Troca instantânea de mapa a pedido do usuário.
@@ -157,19 +154,17 @@ void atualizar_jogo(Jogo *J) {
 
     /* Troca do Mapa 1 para o Mapa 2. */
     if (J->mapa == 1 && (J->player->x >= MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE || troca_mapa)) {
+      finalizar_mapa(J->mapas[J->mapa - 1]);
       J->mapa = 2;
-      finalizar_mapa(mapa_atual);
-      mapa_atual = init_map(J->disp, "map_2.txt");
-      J->mapas[1] = mapa_atual;
+      J->mapas[J->mapa - 1] = init_map(J->disp, "map_2.txt");
       J->player->x = 1; // Teleporta o jogador para o lado esquerdo do mapa.
     }
 
     /* Troca do Mapa 2 para o Mapa 1. */
     else if (J->mapa == 2 && (J->player->x <= 0 || troca_mapa)) {
+      finalizar_mapa(J->mapas[J->mapa - 1]);
       J->mapa = 1;
-      finalizar_mapa(mapa_atual);
-      mapa_atual = init_map(J->disp, "map_1.txt");
-      J->mapas[0] = mapa_atual;
+      J->mapas[J->mapa - 1] = init_map(J->disp, "map_1.txt");
       J->player->x = MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE - 1; // Teleporta o jogador para o lado direito do mapa.
     }
 
@@ -184,7 +179,7 @@ void atualizar_jogo(Jogo *J) {
     /* Renderiza tudo (finalmente!). */
 
     /* Desenha o cenário. */
-    al_draw_bitmap(mapa_atual->background, 0, 0, 0);
+    al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
 
     /* Desenha o quadro certo do sprite do jogador
        com a direção, posição e tamanho corretos. */
@@ -195,10 +190,10 @@ void atualizar_jogo(Jogo *J) {
 
     sprintf(s, "x: %d, y: %d\nUPRIGHT: %s\nUPLEFT: %s\nBOTTOMRIGHT: %s\nBOTTOMLEFT: %s\nPFRAME: %d\n",
             J->player->x, J->player->y,
-            get_block_from_position(mapa_atual, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y),
-            get_block_from_position(mapa_atual, J->player->x, J->player->y),
-            get_block_from_position(mapa_atual, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
-            get_block_from_position(mapa_atual, J->player->x, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
+            get_block_from_position(J->mapas[J->mapa - 1], J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y),
+            get_block_from_position(J->mapas[J->mapa - 1], J->player->x, J->player->y),
+            get_block_from_position(J->mapas[J->mapa - 1], J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
+            get_block_from_position(J->mapas[J->mapa - 1], J->player->x, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
             J->player->frame
     );
 
