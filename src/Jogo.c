@@ -204,11 +204,12 @@ void atualizar_jogo(Jogo *J) {
 }
 
 /*
-  Função que finaliza os sistemas do Allegro e libera a memória
-  dos dados usados internamente por ele e pelo resto do jogo.
+  Função que finaliza os sistemas do Allegro e
+  libera a memória alocada para a struct Jogo.
 */
 
 void finalizar_jogo(Jogo *J) {
+  /* Libera a memória alocada para os dados usados internamente pelo Allegro. */
   al_destroy_display(J->disp);
   al_destroy_timer(J->timer);
   al_destroy_event_queue(J->queue);
