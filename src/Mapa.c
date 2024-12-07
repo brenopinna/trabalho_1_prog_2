@@ -19,7 +19,6 @@ Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
   al_set_target_bitmap(m->background);
 
   m->tileset = cria_matriz_de_codigos_de_blocos();
-  m->objectset = cria_matriz_de_codigos_de_blocos();
 
   ALLEGRO_BITMAP *background_sprites = al_load_bitmap("assets/background-sprites.png");
   cria_cenario(background_sprites, m, map_filename);
@@ -80,6 +79,8 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
       assert(n != 0);
       strcpy(m->tileset[line][col], s);
       draw_tile(background_sprites, s, col, line);
+
+      // TODO: Renderizar objetos decorativos separadamente.
       if (!bloco_andavel(s) && s[0] != WATER_BLOCK && s[0] != WATER_BLOCK_CORNER && s[0] != WATER_LAND_BLOCK) {
         if (line > 0 && !bloco_andavel(m->tileset[line - 1][col])) {
           draw_tile(background_sprites, "a2", col, line);
@@ -181,6 +182,5 @@ char *get_block_from_position(Map *M, int x, int y) {
 void finalizar_mapa(Map *m) {
   al_destroy_bitmap(m->background);
   finaliza_matriz_de_codigos_de_blocos(m->tileset);
-  finaliza_matriz_de_codigos_de_blocos(m->objectset);
   free(m);
 }

@@ -24,7 +24,6 @@
 typedef struct Map {
   ALLEGRO_BITMAP *background;
   char ***tileset;
-  char ***objectset;
 } Map;
 
 Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename);
