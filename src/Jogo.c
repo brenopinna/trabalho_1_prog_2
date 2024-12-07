@@ -209,17 +209,17 @@ void atualizar_jogo(Jogo *J) {
 */
 
 void finalizar_jogo(Jogo *J) {
-  /* Finalização do Allegro. */
   al_destroy_display(J->disp);
   al_destroy_timer(J->timer);
   al_destroy_event_queue(J->queue);
   al_destroy_font(J->f);
+
+  free(J->keys);
+  finalizar_mapa(J->mapas[J->mapa - 1]);
+  free(J->mapas);
+  finalizar_player(J->player);
+
   al_uninstall_system();
 
-  /* Finalização da struct Jogo. */
-  free(J->keys);
-  finalizar_player(J->player); // Função definida em Player.c.
-  finalizar_mapa(J->mapas[J->mapa - 1]); // Função definida em Mapa.c.
-  free(J->mapas);
   free(J);
 }

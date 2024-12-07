@@ -12,7 +12,7 @@ OBJ_FILES = $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC_FILES)))
 
 # Somente para Windows #####################
 # Descomente a linha abaixo.
-# ALLEGRO = allegro64
+ALLEGRO = allegro64
 ifdef ALLEGRO
 CFLAGS += -I${ALLEGRO}/include
 LDFLAGS = -L${ALLEGRO}/lib 
