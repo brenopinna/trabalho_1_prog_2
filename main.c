@@ -1,4 +1,4 @@
-#include <Jogo.h>
+#include "Jogo.h"
 
 int main() {
   Jogo *J = novo_jogo();
