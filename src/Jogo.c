@@ -56,14 +56,14 @@ Jogo *novo_jogo() {
   J->queue = al_create_event_queue();
 
   // Dados usados pelo jogo em si.
-  J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializando o vetor do teclado com zeros.
+  J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
   J->player = criar_player(); // Função definida em Player.c.
   J->mapas = malloc(2 * sizeof(Map *)); // Reserva espaço para dois mapas.
   J->mapas[0] = init_map(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
 
-  /* Registrando as fontes de eventos utilizadas. */
+  /* Registra as fontes de eventos utilizadas. */
   al_register_event_source(J->queue, al_get_keyboard_event_source());
   al_register_event_source(J->queue, al_get_display_event_source(J->disp));
   al_register_event_source(J->queue, al_get_timer_event_source(J->timer));
@@ -76,7 +76,7 @@ Jogo *novo_jogo() {
 
 /*
   Função que verifica se o jogo ainda está rodando e retorna
-  verdadeiro ou falso. O jogo só será encerrado quando o
+  verdadeiro ou falso. O jogo só é encerrado quando o
   usuário apertar a tecla ESC ou fechar a janela.
 */
 
