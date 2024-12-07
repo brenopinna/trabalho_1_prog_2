@@ -112,8 +112,9 @@ void atualizar_jogo(Jogo *J) {
     J->frame_count++; // Aumenta a contagem de quadros renderizados.
     bool troca_mapa = false; // Indica se o mapa foi trocado a pedido do usuário ou não.
 
-    /* Controla a animação do sprite do jogador. Ela só ocorre quando o jogador
-       está andando, e avança um quadro a cada dez quadros renderizados. */
+    /* Controla a ocorrência e a velocidade da animação do sprite do
+       jogador. A animação só ocorre quando o jogador está andando
+       e avança um quadro a cada dez quadros renderizados. */
     if (J->frame_count >= 10 && J->player->andando) {
       muda_frame(J->player); // Função definida em Player.c.
       J->frame_count = 0; // Reinicia a contagem de quadros renderizados.
@@ -202,8 +203,10 @@ void atualizar_jogo(Jogo *J) {
   }
 }
 
-/* Finaliza os sistemas do Allegro, destrói os dados usados internamente
-   por ele e libera a memória dos dados alocados pelo jogo. */
+/*
+  Função que finaliza os sistemas do Allegro e libera a memória
+  dos dados usados internamente por ele e pelo resto do jogo.
+*/
 
 void finalizar_jogo(Jogo *J) {
   /* Finalização do Allegro. */

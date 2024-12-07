@@ -7,7 +7,12 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
 
+/*
+  Função que carrega um mapa. Retorna uma struct Map.
+*/
+
 Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
+  /* Aloca uma nova struct Map dinamicamente. */
   Map *m = malloc(sizeof(Map));
 
   m->background = al_create_bitmap(MAP_PX_WIDTH, MAP_PX_HEIGHT);
@@ -25,6 +30,10 @@ Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
   return m;
 }
 
+/*
+  Função que
+*/
+
 char ***cria_matriz_de_codigos_de_blocos() {
   char ***mat = calloc(MAP_BLOCK_HEIGHT, sizeof(char **));
 
@@ -38,6 +47,10 @@ char ***cria_matriz_de_codigos_de_blocos() {
   return mat;
 }
 
+/*
+  Função que
+*/
+
 void finaliza_matriz_de_codigos_de_blocos(char ***matriz) {
   for (int i = 0; i < MAP_BLOCK_HEIGHT; i++) {
     for (int j = 0; j < MAP_BLOCK_WIDTH; j++) {
@@ -47,6 +60,10 @@ void finaliza_matriz_de_codigos_de_blocos(char ***matriz) {
   }
   free(matriz);
 }
+
+/*
+  Função que
+*/
 
 void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_filename) {
   FILE *f = fopen(map_filename, "r");
@@ -82,12 +99,20 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
   fclose(f);
 }
 
+/*
+  Função que
+*/
+
 void draw_tile(ALLEGRO_BITMAP *background_sprites, const char *block_type, int dx, int dy) {
   int *coord = mapeia_codigo_para_bloco(block_type);
   int sx = coord[0], sy = coord[1];
   al_draw_scaled_bitmap(background_sprites, sx * BLOCK_SPRITE_SIZE, sy * BLOCK_SPRITE_SIZE, BLOCK_SPRITE_SIZE, BLOCK_SPRITE_SIZE, dx * BLOCK_SCALED_SPRITE_SIZE, dy * BLOCK_SCALED_SPRITE_SIZE, BLOCK_SCALED_SPRITE_SIZE, BLOCK_SCALED_SPRITE_SIZE, 0);
   free(coord);
 }
+
+/*
+  Função que
+*/
 
 int *mapeia_codigo_para_bloco(const char *s) {
   char c; int n, x = 0, y = 0;
@@ -122,6 +147,10 @@ int *mapeia_codigo_para_bloco(const char *s) {
   return coord;
 }
 
+/*
+  Função que
+*/
+
 bool bloco_andavel(const char *block) {
   bool andavel = block[0] != WATER_BLOCK &&
     block[0] != LAND_BLOCK &&
@@ -130,6 +159,10 @@ bool bloco_andavel(const char *block) {
 
   return andavel;
 }
+
+/*
+  Função que
+*/
 
 char *get_block_from_position(Map *M, int x, int y) {
   char *c = calloc(3, sizeof(char));
@@ -140,6 +173,10 @@ char *get_block_from_position(Map *M, int x, int y) {
   strcpy(c, M->tileset[lin][col]);
   return c;
 }
+
+/*
+  Função que
+*/
 
 void finalizar_mapa(Map *m) {
   al_destroy_bitmap(m->background);
