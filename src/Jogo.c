@@ -28,11 +28,9 @@ struct Jogo {
   int frame_count; // Contagem de quadros renderizados. Usada para controlar a velocidade da animação do sprite do jogador.
 };
 
-//TODO: ver uma forma de renderizar a arvore em somente 1 bloco
-/*
-TODO: precisa colidir com a parte debaixo e passar atras da parte de cima
-TODO: tem que ter uma renderizacao diferenciada por isso
-*/
+// TODO: Ver uma forma de renderizar a árvore em somente um bloco.
+// TODO: Precisa colidir com a parte debaixo e passar atrás da parte de cima.
+// TODO: Tem que ter uma renderização diferenciada para isso.
 
 /*
   Função que faz a configuração inicial de um novo jogo.
@@ -40,7 +38,7 @@ TODO: tem que ter uma renderizacao diferenciada por isso
 */
 
 Jogo *novo_jogo() {
-  //TODO: Remover fontes, usei so pra testar.
+  // TODO: Remover fontes. Usei só pra testar.
 
   /* Inicialização dos sistemas do Allegro necessários. */
   al_init();
@@ -77,8 +75,9 @@ Jogo *novo_jogo() {
 }
 
 /*
-  Função que verifica se o jogo ainda está rodando. O jogo só será
-  encerrado quando o usuário apertar a tecla ESC ou fechar a janela.
+  Função que verifica se o jogo ainda está rodando e retorna
+  verdadeiro ou falso. O jogo só será encerrado quando o
+  usuário apertar a tecla ESC ou fechar a janela.
 */
 
 bool jogo_rodando(Jogo *J) {
@@ -144,8 +143,7 @@ void atualizar_jogo(Jogo *J) {
         troca_mapa = true;
     }
 
-    // TODO: isolar essa parte de trocar mapa em outra
-    // TODO: e refatorar ela
+    // TODO: Isolar essa parte de trocar mapa em outra função e refatorá-la.
 
     /* Troca o mapa caso o jogador tenha passado dos limites do mapa (à
        direita e à esquerda, respectivamente) ou caso o usuário tenha
@@ -181,11 +179,11 @@ void atualizar_jogo(Jogo *J) {
     /* Desenha o cenário. */
     al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
 
-    /* Desenha o quadro certo do sprite do jogador
-       com a direção, posição e tamanho corretos. */
-    al_draw_scaled_bitmap(J->player->image, J->player->frame * PLAYER_SPRITE_SIZE, J->player->direction * PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, J->player->x, J->player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
+    /* Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos. */
+    al_draw_scaled_bitmap(J->player->image, J->player->frame * PLAYER_SPRITE_SIZE, J->player->direction * PLAYER_SPRITE_SIZE,
+        PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, J->player->x, J->player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
 
-    // TODO: Remover esa exibicao de texto, to usando so pra debugar
+    // TODO: Remover essa exibição de texto. Estou usando só para debugging.
     char s[200];
 
     sprintf(s, "x: %d, y: %d\nUPRIGHT: %s\nUPLEFT: %s\nBOTTOMRIGHT: %s\nBOTTOMLEFT: %s\nPFRAME: %d\n",
