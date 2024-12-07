@@ -218,9 +218,9 @@ void finalizar_jogo(Jogo *J) {
   /* Libera a memória alocada dos dados alocados
      dinamicamente que fazem parte da struct Jogo. */
   free(J->keys);
+  finalizar_player(J->player); // Função definida em Player.c.
   finalizar_mapa(J->mapas[J->mapa - 1]); // Função definida em Mapa.c.
   free(J->mapas);
-  finalizar_player(J->player); // Função definida em Player.c.
 
   /* Finalização definitiva do Allegro. */
   al_uninstall_system();
