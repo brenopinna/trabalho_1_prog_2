@@ -50,10 +50,10 @@ Jogo *novo_jogo() {
   Jogo *J = malloc(sizeof(Jogo));
 
   // Dados usados internamente pelo Allegro.
-  J->f = al_create_builtin_font();
   J->disp = al_create_display(MAP_PX_WIDTH, MAP_PX_HEIGHT);
   J->timer = al_create_timer(1.0 / 120.0);
   J->queue = al_create_event_queue();
+  J->f = al_create_builtin_font();
 
   // Dados usados pelo jogo em si.
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
