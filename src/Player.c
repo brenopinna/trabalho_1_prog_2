@@ -12,7 +12,7 @@
 */
 
 Player *criar_player() {
-  /* Aloca uma nova struct Player dinamicamente. */
+  /* Aloca dinamicamente uma nova struct Player. */
   Player *P = malloc(sizeof(Player));
 
   P->image = al_load_bitmap("assets/player-sprites.png"); // Carrega no Allegro a imagem dos sprites do jogador.
