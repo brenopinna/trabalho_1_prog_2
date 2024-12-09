@@ -47,19 +47,19 @@ Jogo *novo_jogo() {
   al_install_keyboard();
   al_init_font_addon();
 
-  /* Aloca uma nova struct Jogo dinamicamente e inicializa-a. */
+  /* Aloca dinamicamente uma nova struct Jogo e inicializa-a. */
   Jogo *J = malloc(sizeof(Jogo));
 
-  /* Dados usados internamente pelo Allegro. */
+  // Dados usados internamente pelo Allegro.
   J->disp = al_create_display(MAP_PX_WIDTH, MAP_PX_HEIGHT);
   J->timer = al_create_timer(1.0 / 120.0);
   J->queue = al_create_event_queue();
   J->f = al_create_builtin_font();
 
-  /* Dados usados pelo jogo em si. */
+  // Dados usados pelo jogo em si.
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
   J->player = criar_player(); // Função definida em Player.c.
-  J->mapas = malloc(2 * sizeof(Map *)); // Reserva espaço para dois mapas.
+  J->mapas = malloc(2 * sizeof(Map *)); // Aloca dinamicamente um vetor de duas structs Map, reservando espaço para dois mapas.
   J->mapas[0] = init_map(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
@@ -176,12 +176,12 @@ void atualizar_jogo(Jogo *J) {
       J->player->direction = PLAYER_DIRECTION_DOWN;
     }
 
-    /* Renderiza tudo (finalmente!). */
+    /* Lógica de renderização. */
 
-    /* Desenha o cenário. */
+    // Desenha o cenário.
     al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
 
-    /* Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos. */
+    // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
     al_draw_scaled_bitmap(J->player->image, J->player->frame * PLAYER_SPRITE_SIZE, J->player->direction * PLAYER_SPRITE_SIZE,
         PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, J->player->x, J->player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
 
@@ -199,7 +199,7 @@ void atualizar_jogo(Jogo *J) {
 
     al_draw_multiline_text(J->f, al_map_rgb(0, 0, 0), 10, 10, 200, 10, 0, s);
 
-    /* Atualiza a tela com o novo quadro renderizado. */
+    // Atualiza a tela com o novo quadro renderizado.
     al_flip_display();
   }
 }
