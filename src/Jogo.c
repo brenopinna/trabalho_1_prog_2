@@ -14,13 +14,14 @@
 */
 
 struct Jogo {
-  // Dados usados internamente pelo Allegro.
+  /* Dados usados internamente pelo Allegro. */
   ALLEGRO_DISPLAY *disp; // Janela.
   ALLEGRO_TIMER *timer; // Temporizador.
   ALLEGRO_EVENT_QUEUE *queue; // Fila de eventos.
   ALLEGRO_EVENT event; // Evento.
   ALLEGRO_FONT *f;
 
+  /* Dados usados pelo jogo em si. */
   Player *player;  // Ponteiro para uma struct Player.
   Map **mapas; // Vetor de ponteiros para structs Map. Mantém a lista dos mapas do jogo.
   int mapa; // Mantém registrado qual mapa está aberto no momento.
@@ -49,13 +50,13 @@ Jogo *novo_jogo() {
   /* Aloca uma nova struct Jogo dinamicamente e inicializa-a. */
   Jogo *J = malloc(sizeof(Jogo));
 
-  // Dados usados internamente pelo Allegro.
+  /* Dados usados internamente pelo Allegro. */
   J->disp = al_create_display(MAP_PX_WIDTH, MAP_PX_HEIGHT);
   J->timer = al_create_timer(1.0 / 120.0);
   J->queue = al_create_event_queue();
   J->f = al_create_builtin_font();
 
-  // Dados usados pelo jogo em si.
+  /* Dados usados pelo jogo em si. */
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
   J->player = criar_player(); // Função definida em Player.c.
   J->mapas = malloc(2 * sizeof(Map *)); // Reserva espaço para dois mapas.
@@ -209,14 +210,13 @@ void atualizar_jogo(Jogo *J) {
 */
 
 void finalizar_jogo(Jogo *J) {
-  /* Libera a memória dos dados usados internamente pelo Allegro. */
+  /* Dados usados internamente pelo Allegro. */
   al_destroy_display(J->disp);
   al_destroy_timer(J->timer);
   al_destroy_event_queue(J->queue);
   al_destroy_font(J->f);
 
-  /* Libera a memória alocada dos dados alocados
-     dinamicamente que fazem parte da struct Jogo. */
+  /* Dados usados pelo jogo em si. */
   free(J->keys);
   finalizar_player(J->player); // Função definida em Player.c.
   finalizar_mapa(J->mapas[J->mapa - 1]); // Função definida em Mapa.c.
