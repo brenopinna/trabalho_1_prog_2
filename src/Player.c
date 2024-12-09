@@ -15,7 +15,7 @@ Player *criar_player() {
   /* Aloca uma nova struct Player dinamicamente. */
   Player *P = malloc(sizeof(Player));
 
-  P->image = al_load_bitmap("assets/player-sprites.png"); // Carrega no Allegro a imagem contendo os sprites do jogador.
+  P->image = al_load_bitmap("assets/player-sprites.png"); // Carrega no Allegro a imagem dos sprites do jogador.
   P->x = PLAYER_SCALED_SPRITE_SIZE; // Esta linha e a próxima colocam o jogador na posição padrão, que
   P->y = PLAYER_SCALED_SPRITE_SIZE; // é no canto superior esquerdo da tela com uma pequena margem.
   P->velocidade = PLAYER_SPEED; // Define a velocidade do jogador.
