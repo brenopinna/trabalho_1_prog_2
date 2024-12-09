@@ -17,7 +17,7 @@
 */
 
 Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
-  /* Aloca uma nova struct Map dinamicamente. */
+  /* Aloca dinamicamente uma nova struct Map. */
   Map *m = malloc(sizeof(Map));
 
   m->background = al_create_bitmap(MAP_PX_WIDTH, MAP_PX_HEIGHT); // Cria o bitmap onde o mapa é renderizado.
@@ -25,9 +25,9 @@ Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
 
   m->tileset = cria_matriz_de_codigos_de_blocos();
 
-  ALLEGRO_BITMAP *background_sprites = al_load_bitmap("assets/background-sprites.png"); // Carrega a imagem dos blocos de cenário.
+  ALLEGRO_BITMAP *background_sprites = al_load_bitmap("assets/background-sprites.png"); // Carrega no Allegro a imagem dos blocos de cenário.
   cria_cenario(background_sprites, m, map_filename); // Lê o arquivo do mapa e renderiza o mapa no bitmap.
-  al_destroy_bitmap(background_sprites); // Descarrega a imagem dos blocos de cenário.
+  al_destroy_bitmap(background_sprites); // Libera a memória da imagem dos blocos de cenário.
 
   al_set_target_backbuffer(display); // Faz com que o Allegro volte a desenhar no backbuffer da tela.
 
@@ -35,17 +35,20 @@ Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
 }
 
 /*
-  Função que aloca a memória necessária para a matriz de códigos
-  de blocos. Toda a memória alocada é inicializada com zeros.
-  Retorna um ponteiro para uma matriz de strings.
+  Função que aloca dinamicamente a memória necessária para a matriz
+  de códigos de blocos. Toda a memória alocada é inicializada com
+  zeros. Retorna um ponteiro para uma matriz de strings.
 */
 
 char ***cria_matriz_de_codigos_de_blocos() {
+  /* Aloca dinamicamente um vetor de ponteiros para as linhas da matriz. */
   char ***mat = calloc(MAP_BLOCK_HEIGHT, sizeof(char **));
 
   for (int i = 0; i < MAP_BLOCK_HEIGHT; i++) {
+    /* Aloca dinamicamente um vetor de ponteiros para os elementos de uma linha da matriz. */
     mat[i] = calloc(MAP_BLOCK_WIDTH, sizeof(char *));
     for (int j = 0; j < MAP_BLOCK_WIDTH; j++) {
+      /* Aloca dinamicamente uma string de três caracteres, em que será armazenado o código de um bloco. */
       mat[i][j] = calloc(3, sizeof(char));
     }
   }
@@ -60,10 +63,13 @@ char ***cria_matriz_de_codigos_de_blocos() {
 void finaliza_matriz_de_codigos_de_blocos(char ***matriz) {
   for (int i = 0; i < MAP_BLOCK_HEIGHT; i++) {
     for (int j = 0; j < MAP_BLOCK_WIDTH; j++) {
+      /* Libera a memória de uma string da matriz (um bloco). */
       free(matriz[i][j]);
     }
+    /* Libera a memória do vetor de ponteiros para os elementos de uma linha da matriz. */
     free(matriz[i]);
   }
+  /* Libera a memória do vetor de ponteiros para as linhas da matriz. */
   free(matriz);
 }
 
@@ -74,16 +80,19 @@ void finaliza_matriz_de_codigos_de_blocos(char ***matriz) {
 void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_filename) {
   FILE *f = fopen(map_filename, "r");
 
+  /* Mensagem de erro exibida caso o jogo não consiga abrir o arquivo do mapa ou não o encontre. */
   if (f == NULL) {
     puts("Nao foi possivel abrir o arquivo do mapa. Reinicie o jogo e tente novamente.");
   }
 
+  /* Aloca dinamicamente uma string de três caracteres, em que será armazenado o código de um bloco. */
   char *s = malloc(sizeof(char) * 3);
 
+  /*  */
   for (int line = 0; line < MAP_BLOCK_HEIGHT; line++) {
     for (int col = 0; col < MAP_BLOCK_WIDTH; col++) {
       int n = fscanf(f, "%s", s);
-      assert(n != 0);
+      assert(n != 0); // O jogo é encerrado abruptamente a leitura de um bloco falhar.
       strcpy(m->tileset[line][col], s);
       draw_tile(background_sprites, s, col, line);
 
@@ -120,9 +129,9 @@ void draw_tile(ALLEGRO_BITMAP *background_sprites, const char *block_type, int d
 }
 
 /*
-  Função que recebe um código de bloco de cenário e calcula a posição
-  exata dele na imagem dos blocos de cenário. Retorna um vetor de
-  inteiros alocado dinamicamente contendo as coordenadas obtidas.
+  Função que recebe o código de um bloco e calcula a posição exata dele
+  na imagem dos blocos de cenário. Retorna um ponteiro para um vetor de
+  inteiros alocado dinamicamente que contém as coordenadas obtidas.
 */
 
 int *mapeia_codigo_para_bloco(const char *s) {
@@ -159,8 +168,8 @@ int *mapeia_codigo_para_bloco(const char *s) {
 }
 
 /*
-  Função que recebe um código de bloco de cenário e verifica se o
-  jogador pode andar sobre ele ou não. Retorna uma variável booleana.
+  Função que recebe o código de um bloco e verifica se o jogador
+  pode andar sobre ele ou não. Retorna uma variável booleana.
 */
 
 bool bloco_andavel(const char *block) {
@@ -192,7 +201,7 @@ char *get_block_from_position(Map *M, int x, int y) {
 */
 
 void finalizar_mapa(Map *m) {
-  al_destroy_bitmap(m->background);
-  finaliza_matriz_de_codigos_de_blocos(m->tileset);
-  free(m);
+  al_destroy_bitmap(m->background); // Libera a memória da imagem dos blocos de cenário.
+  finaliza_matriz_de_codigos_de_blocos(m->tileset); // Libera a memória da matriz de códigos de blocos.
+  free(m); // Libera a memória da struct Map em si.
 }
