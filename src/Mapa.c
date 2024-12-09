@@ -74,7 +74,8 @@ void finaliza_matriz_de_codigos_de_blocos(char ***matriz) {
 }
 
 /*
-  Função que lê um mapa de um arquivo e desenha o cenário em um bitmap.
+  Função que lê um mapa de um arquivo e desenha o cenário em um bitmap,
+  bloco por bloco, de cima para baixo e da esquerda para a direita.
 */
 
 void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_filename) {
@@ -88,23 +89,33 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
   /* Aloca dinamicamente uma string de três caracteres, em que será armazenado o código de um bloco. */
   char *s = malloc(sizeof(char) * 3);
 
-  /*  */
+  /* Lógica de renderização do mapa para o bitmap.
+     Executada em loop, uma vez para cada bloco. */
   for (int line = 0; line < MAP_BLOCK_HEIGHT; line++) {
     for (int col = 0; col < MAP_BLOCK_WIDTH; col++) {
-      int n = fscanf(f, "%s", s);
+      int n = fscanf(f, "%s", s); // Lê o código de um bloco.
       assert(n != 0); // O jogo é encerrado abruptamente a leitura de um bloco falhar.
-      strcpy(m->tileset[line][col], s);
-      draw_tile(background_sprites, s, col, line);
+      strcpy(m->tileset[line][col], s); // Salva o código na matriz de códigos de blocos.
+      draw_tile(background_sprites, s, col, line); // Renderiza o bloco correspondente para o bitmap.
 
       // TODO: Renderizar objetos decorativos separadamente.
+
+      /* Renderiza as árvores. Uma árvore é renderizada toda vez que houver
+         pelo menos dois blocos de terra adjacentes na vertical. */
       if (!bloco_andavel(s) && s[0] != WATER_BLOCK && s[0] != WATER_BLOCK_CORNER && s[0] != WATER_LAND_BLOCK) {
+
+        // Se o bloco logo acima não for andável, desenha a árvore completa, de cima para baixo.
         if (line > 0 && !bloco_andavel(m->tileset[line - 1][col])) {
           draw_tile(background_sprites, "a2", col, line);
           draw_tile(background_sprites, "a1", col, line - 1);
         }
+
+        // Se for a primeira linha do cenário, desenha só a parte de baixo da árvore.
         if (line == 0) {
           draw_tile(background_sprites, "a2", col, line);
         }
+
+        // Se for a última linha do cenário, desenha só a parte de cima.
         if (line == MAP_BLOCK_HEIGHT - 1) {
           draw_tile(background_sprites, "a1", col, line);
         }
