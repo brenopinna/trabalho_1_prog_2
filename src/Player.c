@@ -129,10 +129,10 @@ void move_player(Player *P, int direction, Map *M) {
 }
 
 /*
-  Função que libera a memória alocada para os sprites do jogador e pela struct Player.
+  Função que libera a memória alocada para a struct Player.
 */
 
 void finalizar_player(Player *P) {
-  al_destroy_bitmap(P->image);
-  free(P);
+  al_destroy_bitmap(P->image); // Libera a memória da imagem dos sprites do jogador.
+  free(P); // Libera a memória da struct Player em si.
 }
