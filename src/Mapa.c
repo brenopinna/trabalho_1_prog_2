@@ -26,6 +26,14 @@ Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
   m->tileset = cria_matriz_de_codigos_de_blocos(); // Carrega os dados contidos no arquivo do mapa para uma matriz.
 
   ALLEGRO_BITMAP *background_sprites = al_load_bitmap("assets/background-sprites.png"); // Carrega no Allegro a imagem dos blocos de cenário.
+
+  /* Caso o jogo não consiga abrir a imagem, uma mensagem
+     de erro é exibida e o jogo encerra abruptamente. */
+  if (background_sprites == NULL) {
+    puts("Nao foi possivel abrir a imagem dos blocos de cenario. Reinicie o jogo e tente novamente.");
+  }
+  assert(background_sprites != NULL);
+
   cria_cenario(background_sprites, m, map_filename); // Lê o arquivo do mapa e renderiza o mapa no bitmap.
   al_destroy_bitmap(background_sprites); // Libera a memória da imagem dos blocos de cenário.
 
@@ -83,10 +91,12 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
   /* Abre o arquivo do mapa no modo de leitura. */
   FILE *f = fopen(map_filename, "r");
 
-  /* Mensagem de erro exibida caso o jogo não consiga abrir o arquivo do mapa ou não o encontre. */
+  /* Caso o jogo não consiga abrir o arquivo, uma mensagem
+     de erro é exibida e o jogo encerra abruptamente. */
   if (f == NULL) {
     puts("Nao foi possivel abrir o arquivo do mapa. Reinicie o jogo e tente novamente.");
   }
+  assert(f != NULL);
 
   char *s = malloc(sizeof(char) * 3); // String temporária que armazena um código de bloco por vez.
 

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
 #include <allegro5/allegro5.h>
@@ -16,6 +17,14 @@ Player *criar_player() {
   Player *P = malloc(sizeof(Player));
 
   P->image = al_load_bitmap("assets/player-sprites.png"); // Carrega no Allegro a imagem dos sprites do jogador.
+
+  /* Caso o jogo não consiga abrir a imagem, uma mensagem
+     de erro é exibida e o jogo encerra abruptamente. */
+  if (P->image == NULL) {
+    puts("Nao foi possivel abrir a imagem dos sprites do jogador. Reinicie o jogo e tente novamente.");
+  }
+  assert(P->image != NULL);
+
   P->x = PLAYER_SCALED_SPRITE_SIZE; // Esta linha e a próxima colocam o jogador na posição padrão, que
   P->y = PLAYER_SCALED_SPRITE_SIZE; // é no canto superior esquerdo da tela com uma pequena margem.
   P->velocidade = PLAYER_SPEED; // Define a velocidade do jogador.
