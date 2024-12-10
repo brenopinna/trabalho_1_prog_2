@@ -59,7 +59,7 @@ Jogo *novo_jogo() {
   // Dados usados pelo jogo em si.
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
   J->player = criar_player(); // Função definida em Player.c.
-  J->mapas = malloc(2 * sizeof(Map *)); // Aloca dinamicamente um vetor de duas structs Map, reservando espaço para dois mapas.
+  J->mapas = malloc(2 * sizeof(Map *)); // Reserva espaço para dois mapas.
   J->mapas[0] = init_map(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.

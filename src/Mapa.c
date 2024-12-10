@@ -41,12 +41,16 @@ Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
 */
 
 char ***cria_matriz_de_codigos_de_blocos() {
-  char ***mat = calloc(MAP_BLOCK_HEIGHT, sizeof(char **)); // Aloca um vetor de ponteiros para as linhas da matriz.
-
+  /* Aloca um vetor de ponteiros para as linhas da matriz. */
+  char ***mat = calloc(MAP_BLOCK_HEIGHT, sizeof(char **)); 
+  
+  /* Aloca um vetor de ponteiros para os elementos de uma linha da matriz. */
   for (int i = 0; i < MAP_BLOCK_HEIGHT; i++) {
-    mat[i] = calloc(MAP_BLOCK_WIDTH, sizeof(char *)); // Aloca um vetor de ponteiros para os elementos de uma linha da matriz.
+    mat[i] = calloc(MAP_BLOCK_WIDTH, sizeof(char *)); // 
     for (int j = 0; j < MAP_BLOCK_WIDTH; j++) {
-      mat[i][j] = calloc(3, sizeof(char)); // Aloca uma string de três caracteres, em que será armazenado o código de um bloco.
+
+      /* Aloca uma string de três caracteres, em que será armazenado o código de um bloco. */
+      mat[i][j] = calloc(3, sizeof(char)); 
     }
   }
 
@@ -60,11 +64,14 @@ char ***cria_matriz_de_codigos_de_blocos() {
 void finaliza_matriz_de_codigos_de_blocos(char ***matriz) {
   for (int i = 0; i < MAP_BLOCK_HEIGHT; i++) {
     for (int j = 0; j < MAP_BLOCK_WIDTH; j++) {
-      free(matriz[i][j]); // Libera a memória de uma string da matriz (um bloco).
+      /* Libera a memória de uma string da matriz (um bloco). */
+      free(matriz[i][j]);
     }
-    free(matriz[i]); // Libera a memória do vetor de ponteiros de uma linha da matriz.
+    /* Libera a memória do vetor de ponteiros de uma linha da matriz. */
+    free(matriz[i]);
   }
-  free(matriz); // Libera a memória do vetor de ponteiros para as linhas da matriz.
+  /* Libera a memória do vetor de ponteiros para as linhas da matriz. */
+  free(matriz); 
 }
 
 /*
@@ -95,7 +102,6 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
       // TODO: Renderizar objetos decorativos separadamente.
 
       /* Lógica de renderização das árvores. Elas são desenhadas por cima do resto do mapa. */
-      
       // Verifica se o bloco que acabou de ser desenhado é um bloco de terra.
       if (s[0] == LAND_BLOCK) {
 
@@ -118,7 +124,6 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
     }
   }
 
-  /* Libera a memória da string. */
   free(s);
 
   /* Fecha o arquivo do mapa. */
@@ -198,14 +203,19 @@ bool bloco_andavel(const char *block) {
 */
 
 char *get_block_from_position(Map *M, int x, int y) {
+  /* Aloca uma string de três caracteres, em que será armazenado o código de um bloco. */
   char *c = calloc(3, sizeof(char));
 
+  /* Com base no tamanho que um bloco de cenário ocupa na tela,
+     calcula as coordenadas do bloco em que o pixel está. */
   int col = x / BLOCK_SCALED_SPRITE_SIZE;
   int lin = y / BLOCK_SCALED_SPRITE_SIZE;
 
+  /* Compensação para caso o cálculo ultrapasse os limites da matriz de códigos de blocos. */
   if (col >= MAP_BLOCK_WIDTH) col--;
   if (lin >= MAP_BLOCK_HEIGHT) lin--;
-
+  
+  /* Copia o código do bloco na coordenada encontrada para a string. */
   strcpy(c, M->tileset[lin][col]);
 
   return c;

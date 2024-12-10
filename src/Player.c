@@ -12,7 +12,7 @@
 */
 
 Player *criar_player() {
-  /* Aloca dinamicamente uma nova struct Player. */
+  /* Aloca dinamicamente uma nova struct Player e inicializa-a. */
   Player *P = malloc(sizeof(Player));
 
   P->image = al_load_bitmap("assets/player-sprites.png"); // Carrega no Allegro a imagem dos sprites do jogador.
@@ -81,7 +81,7 @@ void verifica_movimento(Map *M, Player *P) {
   int margem_top = PLAYER_SCALED_SPRITE_SIZE / 2;
 
   /* Verifica os blocos que estariam em cada um dos quatro cantos do sprite do
-     jogador, e salva os códigos dos blocos em strings alocadas dinamicamente. */
+     jogador. Os códigos dos blocos são salvos em strings temporárias. */
   char *bloco_up_right = get_block_from_position(M, x + margem_right, y + margem_top); // Canto superior direito.
   char *bloco_up_left = get_block_from_position(M, x + margem_left, y + margem_top); // Canto superior esquerdo.
   char *bloco_bottom_right = get_block_from_position(M, x + margem_right, y + margem_bottom); // Canto inferior direito.
@@ -95,7 +95,6 @@ void verifica_movimento(Map *M, Player *P) {
   P->can_move_right = bloco_andavel(bloco_up_right) && bloco_andavel(bloco_bottom_right); // Para a direita.
   P->can_move_left = bloco_andavel(bloco_up_left) && bloco_andavel(bloco_bottom_left); // Para a esquerda.
 
-  /* Liberando a memória das strings. */
   free(bloco_up_right);
   free(bloco_up_left);
   free(bloco_bottom_right);
