@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
 #include <Mapa.h>
 #include <Player.h>
 #include <Jogo.h>
@@ -19,7 +18,6 @@ struct Jogo {
   ALLEGRO_TIMER *timer; // Temporizador.
   ALLEGRO_EVENT_QUEUE *queue; // Fila de eventos.
   ALLEGRO_EVENT event; // Evento.
-  ALLEGRO_FONT *f;
 
   /* Dados usados pelo jogo em si. */
   Player *player;  // Ponteiro para uma struct Player.
@@ -54,7 +52,6 @@ Jogo *novo_jogo() {
   J->disp = al_create_display(MAPA_LARGURA_PX, MAPA_ALTURA_PX);
   J->timer = al_create_timer(1.0 / 120.0);
   J->queue = al_create_event_queue();
-  J->f = al_create_builtin_font();
 
   // Dados usados pelo jogo em si.
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
@@ -124,7 +121,7 @@ void atualizar_jogo(Jogo *J) {
     /* Verifica se o usuário deu algum comando de teclado válido
        e executa a ação correspondente ao comando detectado. */
 
-    /* Movimento do jogador. Função mover_player definida em Player.c. */
+       /* Movimento do jogador. Função mover_player definida em Player.c. */
     if (J->keys[ALLEGRO_KEY_UP]) { // Para cima.
       mover_player(J->player, PLAYER_DIRECAO_CIMA, J->mapas[J->mapa - 1]); // J->mapas[J->mapa - 1] é o mapa atual.
     } else if (J->keys[ALLEGRO_KEY_DOWN]) { // Para baixo.
@@ -185,20 +182,6 @@ void atualizar_jogo(Jogo *J) {
     al_draw_scaled_bitmap(J->player->imagem, J->player->frame * PLAYER_TAMANHO_SPRITE, J->player->direcao * PLAYER_TAMANHO_SPRITE,
                           PLAYER_TAMANHO_SPRITE, PLAYER_TAMANHO_SPRITE, J->player->x, J->player->y, PLAYER_TAMANHO_SPRITE_REDUZIDA, PLAYER_TAMANHO_SPRITE_REDUZIDA, 0);
 
-    // TODO: Remover essa exibição de texto. Estou usando só para debugging.
-    char s[200];
-
-    sprintf(s, "x: %d, y: %d\nUPRIGHT: %s\nUPLEFT: %s\nBOTTOMRIGHT: %s\nBOTTOMLEFT: %s\nPFRAME: %d\n",
-            J->player->x, J->player->y,
-            pegar_bloco_da_posicao(J->mapas[J->mapa - 1], J->player->x + PLAYER_TAMANHO_SPRITE_REDUZIDA, J->player->y),
-            pegar_bloco_da_posicao(J->mapas[J->mapa - 1], J->player->x, J->player->y),
-            pegar_bloco_da_posicao(J->mapas[J->mapa - 1], J->player->x + PLAYER_TAMANHO_SPRITE_REDUZIDA, J->player->y + PLAYER_TAMANHO_SPRITE_REDUZIDA),
-            pegar_bloco_da_posicao(J->mapas[J->mapa - 1], J->player->x, J->player->y + PLAYER_TAMANHO_SPRITE_REDUZIDA),
-            J->player->frame
-    );
-
-    al_draw_multiline_text(J->f, al_map_rgb(0, 0, 0), 10, 10, 200, 10, 0, s);
-
     // Atualiza a tela com o novo quadro renderizado.
     al_flip_display();
   }
@@ -214,7 +197,6 @@ void finalizar_jogo(Jogo *J) {
   al_destroy_display(J->disp);
   al_destroy_timer(J->timer);
   al_destroy_event_queue(J->queue);
-  al_destroy_font(J->f);
 
   /* Dados usados pelo jogo em si. */
   free(J->keys);
