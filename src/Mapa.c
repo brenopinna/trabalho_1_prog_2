@@ -97,7 +97,7 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
       /* Lógica de renderização das árvores. Elas são desenhadas por cima do resto do mapa. */
       
       // Verifica se o bloco que acabou de ser desenhado é um bloco de terra.
-      if (!bloco_andavel(s) && s[0] != WATER_BLOCK && s[0] != WATER_BLOCK_CORNER && s[0] != WATER_LAND_BLOCK) {
+      if (s[0] == LAND_BLOCK) {
 
         // Se o bloco logo acima dele não for andável, desenha a árvore completa, de cima para baixo.
         if (line > 0 && !bloco_andavel(m->tileset[line - 1][col])) {
@@ -132,8 +132,7 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
 
 void draw_tile(ALLEGRO_BITMAP *background_sprites, const char *block_type, int dx, int dy) {
   int *coord = mapeia_codigo_para_bloco(block_type);
-  int sx = coord[0], sy = coord[1];
-  al_draw_scaled_bitmap(background_sprites, sx * BLOCK_SPRITE_SIZE, sy * BLOCK_SPRITE_SIZE, BLOCK_SPRITE_SIZE, BLOCK_SPRITE_SIZE,
+  al_draw_scaled_bitmap(background_sprites, coord[0] * BLOCK_SPRITE_SIZE, coord[1] * BLOCK_SPRITE_SIZE, BLOCK_SPRITE_SIZE, BLOCK_SPRITE_SIZE,
       dx * BLOCK_SCALED_SPRITE_SIZE, dy * BLOCK_SCALED_SPRITE_SIZE, BLOCK_SCALED_SPRITE_SIZE, BLOCK_SCALED_SPRITE_SIZE, 0);
   free(coord);
 }
@@ -200,11 +199,15 @@ bool bloco_andavel(const char *block) {
 
 char *get_block_from_position(Map *M, int x, int y) {
   char *c = calloc(3, sizeof(char));
+
   int col = x / BLOCK_SCALED_SPRITE_SIZE;
-  if (col >= MAP_BLOCK_WIDTH) col--;
   int lin = y / BLOCK_SCALED_SPRITE_SIZE;
+
+  if (col >= MAP_BLOCK_WIDTH) col--;
   if (lin >= MAP_BLOCK_HEIGHT) lin--;
+
   strcpy(c, M->tileset[lin][col]);
+
   return c;
 }
 
