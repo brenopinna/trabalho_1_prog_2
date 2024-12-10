@@ -4,43 +4,42 @@
 #include <allegro5/allegro_image.h>
 #include <Jogo.h>
 
-#define MAP_BLOCK_WIDTH 16
-#define MAP_BLOCK_HEIGHT 12
+#define MAPA_LARGURA_BLOCOS 16
+#define MAPA_ALTURA_BLOCOS 12
 
-#define BLOCK_SPRITE_SIZE 128
-#define BLOCK_SCALED_SPRITE_SIZE 48
+#define BLOCO_TAMANHO_SPRITE 128
+#define BLOCO_TAMANHO_SPRITE_REDUZIDA 48
 
-#define MAP_PX_WIDTH (MAP_BLOCK_WIDTH * BLOCK_SCALED_SPRITE_SIZE)
-#define MAP_PX_HEIGHT (MAP_BLOCK_HEIGHT * BLOCK_SCALED_SPRITE_SIZE)
+#define MAPA_LARGURA_PX (MAPA_LARGURA_BLOCOS * BLOCO_TAMANHO_SPRITE_REDUZIDA)
+#define MAPA_ALTURA_PX (MAPA_ALTURA_BLOCOS * BLOCO_TAMANHO_SPRITE_REDUZIDA)
 
-#define GRASS_BLOCK        'G'
-#define GRASS_BLOCK_CORNER 'Q'
-#define LAND_BLOCK         'T'
-#define WATER_LAND_BLOCK   't'
-#define WATER_BLOCK        'A'
-#define WATER_BLOCK_CORNER 'q'
-#define TREE_BLOCK         'a'
+#define BLOCO_GRAMA       'G'
+#define BLOCO_GRAMA_QUINA 'Q'
+#define BLOCO_TERRA       'T'
+#define BLOCO_TERRA_AGUA  't'
+#define BLOCO_AGUA        'A'
+#define BLOCO_AGUA_QUINA  'q'
+#define BLOCO_ARVORE      'a'
 
 typedef struct Map {
   ALLEGRO_BITMAP *background;
-  char ***tileset;
-  char ***objectset;
+  char ***tiles;
 } Map;
 
-Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename);
+Map *iniciar_mapa(ALLEGRO_DISPLAY *display, const char *arquivo_mapa);
 
-char ***cria_matriz_de_codigos_de_blocos();
+char ***criar_matriz_de_codigos_de_blocos();
 
-void finaliza_matriz_de_codigos_de_blocos(char ***matriz);
+void finalizar_matriz_de_codigos_de_blocos(char ***matriz);
 
-void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_filename);
+void criar_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *arquivo_mapa);
 
-void draw_tile(ALLEGRO_BITMAP *background_sprites, const char *block_type, int dx, int dy);
+void desenhar_tile(ALLEGRO_BITMAP *background_sprites, const char *tipo_do_bloco, int dx, int dy);
 
-int *mapeia_codigo_para_bloco(const char *s);
+int *mapear_codigo_para_bloco(const char *s);
 
-bool bloco_andavel(const char *block);
+bool bloco_andavel(const char *bloco);
 
-char *get_block_from_position(Map *M, int x, int y);
+char *pegar_bloco_da_posicao(Map *m, int x, int y);
 
 void finalizar_mapa(Map *m);

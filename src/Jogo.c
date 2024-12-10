@@ -3,58 +3,79 @@
 #include <stdio.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
-#include <Jogo.h>
-#include <Player.h>
 #include <Mapa.h>
+#include <Player.h>
+#include <Jogo.h>
+
+/*
+  Definição da struct Jogo. Ela armazena todas as informações
+  necessárias para manter o jogo funcionando.
+*/
 
 struct Jogo {
-  ALLEGRO_DISPLAY *disp;
-  ALLEGRO_TIMER *timer;
-  ALLEGRO_EVENT_QUEUE *queue;
-  ALLEGRO_EVENT event;
-  Player *player;
-  ALLEGRO_FONT *f;
-  Map **mapas;
-  int mapa;
-  bool *keys;
-  int frame_count;
+  /* Dados usados internamente pelo Allegro. */
+  ALLEGRO_DISPLAY *disp; // Janela.
+  ALLEGRO_TIMER *timer; // Temporizador.
+  ALLEGRO_EVENT_QUEUE *queue; // Fila de eventos.
+  ALLEGRO_EVENT event; // Evento.
+
+  /* Dados usados pelo jogo em si. */
+  Player *player;  // Ponteiro para uma struct Player.
+  Map **mapas; // Vetor de ponteiros para structs Map. Mantém a lista dos mapas do jogo.
+  int mapa; // Mantém registrado qual mapa está aberto no momento.
+  bool *keys; // Vetor que armazena o estado das teclas do teclado.
+  int frame_count; // Contagem de quadros renderizados. Usada para controlar a velocidade da animação do sprite do jogador.
 };
 
-//TODO: ver uma forma de renderizar a arvore em somente 1 bloco
+// TODO: Ver uma forma de renderizar a árvore em somente um bloco.
+// TODO: Precisa colidir com a parte debaixo e passar atrás da parte de cima.
+// TODO: Tem que ter uma renderização diferenciada para isso.
+
 /*
-TODO: precisa colidir com a parte debaixo e passar atras da parte de cima
-TODO: tem que ter uma renderizacao diferenciada por isso
+  Função que faz a configuração inicial de um novo jogo.
+  Retorna um ponteiro para uma struct Jogo alocada dinamicamente.
 */
 
 Jogo *novo_jogo() {
-  //TODO: Remover fontes, usei so pra testar.
+  // TODO: Remover fontes. Usei só pra testar.
+
+  /* Inicialização dos sistemas do Allegro necessários. */
   al_init();
   al_init_image_addon();
   al_install_keyboard();
-  al_init_font_addon();
 
+  /* Aloca dinamicamente uma nova struct Jogo e inicializa-a. */
   Jogo *J = malloc(sizeof(Jogo));
 
-  J->f = al_create_builtin_font();
-
-  J->disp = al_create_display(MAP_PX_WIDTH, MAP_PX_HEIGHT);
-  J->timer = al_create_timer(1.0 / 100.0);
+  // Dados usados internamente pelo Allegro.
+  J->disp = al_create_display(MAPA_LARGURA_PX, MAPA_ALTURA_PX);
+  J->timer = al_create_timer(1.0 / 120.0);
   J->queue = al_create_event_queue();
-  J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool));
-  J->player = criar_player();
-  J->mapas = malloc(2 * sizeof(Map *));
-  J->mapas[0] = init_map(J->disp, "map_1.txt");
-  J->mapa = 1;
-  J->frame_count = 0;
 
+  // Dados usados pelo jogo em si.
+  J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
+  J->player = criar_player(); // Função definida em Player.c.
+  J->mapas = malloc(2 * sizeof(Map *)); // Reserva espaço para dois mapas.
+  J->mapas[0] = iniciar_mapa(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
+  J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
+  J->frame_count = 0; // Inicia a contagem de quadros em 0.
+
+  /* Registra as fontes de eventos utilizadas. */
   al_register_event_source(J->queue, al_get_keyboard_event_source());
   al_register_event_source(J->queue, al_get_display_event_source(J->disp));
   al_register_event_source(J->queue, al_get_timer_event_source(J->timer));
+
+  /* Inicia o temporizador. */
   al_start_timer(J->timer);
 
   return J;
 }
+
+/*
+  Função que verifica se o jogo ainda está rodando. O jogo só é fechado quando
+  o usuário aperta a tecla ESC ou fecha a janela, a não ser que seja encerrado
+  abruptamente por algum assert. Retorna um valor booleano.
+*/
 
 bool jogo_rodando(Jogo *J) {
   if (J->event.type == ALLEGRO_EVENT_DISPLAY_CLOSE ||
@@ -64,106 +85,127 @@ bool jogo_rodando(Jogo *J) {
   return true;
 }
 
-void atualizar_jogo(Jogo *J) {
-  bool redraw = true;
+/*
+  Função que atualiza o jogo. Ela é chamada em loop
+  pela função main até que o jogo seja fechado.
+*/
 
+void atualizar_jogo(Jogo *J) {
+  /* Espera um evento acontecer. Assim que acontecer, salva as informações do
+     evento em J->event, para que elas possam ser tratadas no resto da função. */
   al_wait_for_event(J->queue, &J->event);
 
-  ALLEGRO_EVENT event = J->event;
-
-  if (event.type == ALLEGRO_EVENT_TIMER) {
-    redraw = true;
-  } else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-    J->keys[event.keyboard.keycode] = true;
-  } else if (event.type == ALLEGRO_EVENT_KEY_UP) {
-    J->keys[event.keyboard.keycode] = false;
-    parar_player(J->player);
+  /* Verifica se uma tecla foi pressionada ou solta e registra no vetor de teclas. */
+  if (J->event.type == ALLEGRO_EVENT_KEY_DOWN) {
+    J->keys[J->event.keyboard.keycode] = true;
+  } else if (J->event.type == ALLEGRO_EVENT_KEY_UP) {
+    J->keys[J->event.keyboard.keycode] = false;
+    parar_player(J->player); // Se qualquer tecla for solta, o jogador para.
   }
 
-  Player *player = J->player;
-  const bool *keys = J->keys;
+  /* Lógica principal da atualização do jogo. Só é executada em sincronia com
+     o temporizador e quando não há mais outros eventos a serem processados. */
+  if (J->event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
+    J->frame_count++; // Aumenta a contagem de quadros renderizados.
+    bool troca_mapa = false; // Indica se o mapa foi trocado a pedido do usuário ou não.
 
-  if (redraw && al_is_event_queue_empty(J->queue)) {
-    J->frame_count++;
-    bool troca_mapa = false;
-
-    if (J->frame_count >= 10 && player->andando) {
-      muda_frame(J->player);
-      J->frame_count = 0;
+    /* Controla a ocorrência e a velocidade da animação do sprite do
+       jogador. A animação só ocorre quando o jogador está andando
+       e avança um quadro a cada dez quadros renderizados. */
+    if (J->frame_count >= 10 && J->player->andando) {
+      mudar_frame(J->player); // Função definida em Player.c.
+      J->frame_count = 0; // Reinicia a contagem de quadros renderizados.
     }
 
-    Map *mapa_atual = J->mapas[J->mapa - 1];
+    /* Verifica se o usuário deu algum comando de teclado válido
+       e executa a ação correspondente ao comando detectado. */
 
-    if (keys[ALLEGRO_KEY_UP]) {
-      move_player(J->player, PLAYER_DIRECTION_UP, mapa_atual);
-    } else if (keys[ALLEGRO_KEY_DOWN]) {
-      move_player(J->player, PLAYER_DIRECTION_DOWN, mapa_atual);
-    } else if (keys[ALLEGRO_KEY_RIGHT]) {
-      move_player(J->player, PLAYER_DIRECTION_RIGHT, mapa_atual);
-    } else if (keys[ALLEGRO_KEY_LEFT]) {
-      move_player(J->player, PLAYER_DIRECTION_LEFT, mapa_atual);
-    } else if (keys[ALLEGRO_KEY_1]) {
+       /* Movimento do jogador. Função mover_player definida em Player.c. */
+    if (J->keys[ALLEGRO_KEY_UP]) { // Para cima.
+      mover_player(J->player, PLAYER_DIRECAO_CIMA, J->mapas[J->mapa - 1]); // J->mapas[J->mapa - 1] é o mapa atual.
+    } else if (J->keys[ALLEGRO_KEY_DOWN]) { // Para baixo.
+      mover_player(J->player, PLAYER_DIRECAO_BAIXO, J->mapas[J->mapa - 1]);
+    } else if (J->keys[ALLEGRO_KEY_RIGHT]) { // Para a direita.
+      mover_player(J->player, PLAYER_DIRECAO_DIREITA, J->mapas[J->mapa - 1]);
+    } else if (J->keys[ALLEGRO_KEY_LEFT]) { // Para a esquerda.
+      mover_player(J->player, PLAYER_DIRECAO_ESQUERDA, J->mapas[J->mapa - 1]);
+    }
+
+    /* Troca instantânea de mapa a pedido do usuário.
+       Só ocorre se o mapa escolhido não for o atual. */
+    else if (J->keys[ALLEGRO_KEY_1]) { // Mapa 1.
       if (J->mapa != 1)
         troca_mapa = true;
-    } else if (keys[ALLEGRO_KEY_2]) {
+    } else if (J->keys[ALLEGRO_KEY_2]) { // Mapa 2.
       if (J->mapa != 2)
         troca_mapa = true;
     }
 
-    // TODO: isolar essa parte de trocar mapa em outra
-    // TODO: e refatorar ela
+    // TODO: Isolar essa parte de trocar mapa em outra função e refatorá-la.
 
-    if (J->mapa == 1 && (J->player->x >= MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE || troca_mapa)) {
+    /* Troca o mapa caso o jogador tenha passado dos limites do mapa (à
+       direita e à esquerda, respectivamente) ou caso o usuário tenha
+       feito a troca instantânea de mapa. Funções finalizar_mapa e
+       init_map definidas em Mapa.c. */
+
+       /* Troca do Mapa 1 para o Mapa 2. */
+    if (J->mapa == 1 && (J->player->x >= MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA || troca_mapa)) {
+      finalizar_mapa(J->mapas[J->mapa - 1]);
       J->mapa = 2;
-      finalizar_mapa(mapa_atual);
-      mapa_atual = init_map(J->disp, "map_2.txt");
-      J->mapas[1] = mapa_atual;
-      J->player->x = 1;
-    } else if (J->mapa == 2 && (J->player->x <= 0 || troca_mapa)) {
+      J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_2.txt");
+      J->player->x = 1; // Teleporta o jogador para o lado esquerdo do mapa.
+    }
+
+    /* Troca do Mapa 2 para o Mapa 1. */
+    else if (J->mapa == 2 && (J->player->x <= 0 || troca_mapa)) {
+      finalizar_mapa(J->mapas[J->mapa - 1]);
       J->mapa = 1;
-      finalizar_mapa(mapa_atual);
-      mapa_atual = init_map(J->disp, "map_1.txt");
-      J->mapas[0] = mapa_atual;
-      J->player->x = MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE - 1;
+      J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_1.txt");
+      J->player->x = MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
     }
 
+    /* Reseta a posição do jogador para o padrão caso a
+       troca de mapa tenha sido a pedido do usuário. */
     if (troca_mapa) {
-      J->player->x = PLAYER_SCALED_SPRITE_SIZE;
-      J->player->y = PLAYER_SCALED_SPRITE_SIZE;
-      J->player->direction = PLAYER_DIRECTION_DOWN;
+      J->player->x = PLAYER_TAMANHO_SPRITE_REDUZIDA;
+      J->player->y = PLAYER_TAMANHO_SPRITE_REDUZIDA;
+      J->player->direcao = PLAYER_DIRECAO_BAIXO;
     }
 
-    al_draw_bitmap(mapa_atual->background, 0, 0, 0);
-    al_draw_scaled_bitmap(player->image, player->frame * PLAYER_SPRITE_SIZE, player->direction * PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, player->x, player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
+    /* Lógica de renderização. */
 
-    // TODO: Remover esa exibicao de texto, to usando so pra debugar
-    char s[200];
+    // Desenha o cenário.
+    al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
 
-    sprintf(s, "x: %d, y: %d\nUPRIGHT: %s\nUPLEFT: %s\nBOTTOMRIGHT: %s\nBOTTOMLEFT: %s\n",
-            J->player->x, J->player->y,
-            get_block_from_position(mapa_atual, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y),
-            get_block_from_position(mapa_atual, J->player->x, J->player->y),
-            get_block_from_position(mapa_atual, J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
-            get_block_from_position(mapa_atual, J->player->x, J->player->y + PLAYER_SCALED_SPRITE_SIZE)
-    );
+    // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
+    al_draw_scaled_bitmap(J->player->imagem, J->player->frame * PLAYER_TAMANHO_SPRITE, J->player->direcao * PLAYER_TAMANHO_SPRITE,
+                          PLAYER_TAMANHO_SPRITE, PLAYER_TAMANHO_SPRITE, J->player->x, J->player->y, PLAYER_TAMANHO_SPRITE_REDUZIDA, PLAYER_TAMANHO_SPRITE_REDUZIDA, 0);
 
-    al_draw_multiline_text(J->f, al_map_rgb(0, 0, 0), 10, 10, 200, 10, 0, s);
-
+    // Atualiza a tela com o novo quadro renderizado.
     al_flip_display();
-
-    redraw = false;
   }
 }
 
+/*
+  Função que finaliza os sistemas do Allegro e
+  libera a memória alocada para a struct Jogo.
+*/
+
 void finalizar_jogo(Jogo *J) {
+  /* Dados usados internamente pelo Allegro. */
   al_destroy_display(J->disp);
   al_destroy_timer(J->timer);
   al_destroy_event_queue(J->queue);
+
+  /* Dados usados pelo jogo em si. */
   free(J->keys);
-  al_destroy_font(J->f);
-  finalizar_player(J->player);
-  finalizar_mapa(J->mapas[J->mapa - 1]);
+  finalizar_player(J->player); // Função definida em Player.c.
+  finalizar_mapa(J->mapas[J->mapa - 1]); // Função definida em Mapa.c.
   free(J->mapas);
+
+  /* Finalização definitiva do Allegro. */
   al_uninstall_system();
+
+  /* Libera a memória da struct Jogo em si. */
   free(J);
 }
