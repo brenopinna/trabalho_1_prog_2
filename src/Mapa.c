@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <Mapa.h>
-#include <Jogo.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
+#include <Jogo.h>
+#include <Mapa.h>
 
 /*
   Função que carrega um mapa. Os dados são lidos de um arquivo e o cenário

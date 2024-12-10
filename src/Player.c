@@ -1,11 +1,11 @@
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <assert.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
 #include <Jogo.h>
-#include <Player.h>
 #include <Mapa.h>
+#include <Player.h>
 
 /*
   Função que cria um novo jogador, inicializando-o com vários

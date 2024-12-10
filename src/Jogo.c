@@ -4,9 +4,9 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
-#include <Jogo.h>
-#include <Player.h>
 #include <Mapa.h>
+#include <Player.h>
+#include <Jogo.h>
 
 /*
   Definição da struct Jogo. Ela armazena todas as informações
