@@ -180,7 +180,7 @@ int *mapeia_codigo_para_bloco(const char *s) {
 
 /*
   Função que recebe o código de um bloco e verifica se o jogador
-  pode andar sobre ele ou não. Retorna uma variável booleana.
+  pode andar sobre ele ou não. Retorna um valor booleano.
 */
 
 bool bloco_andavel(const char *block) {

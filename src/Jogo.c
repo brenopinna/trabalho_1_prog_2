@@ -76,9 +76,9 @@ Jogo *novo_jogo() {
 }
 
 /*
-  Função que verifica se o jogo ainda está rodando e retorna
-  verdadeiro ou falso. O jogo só é encerrado quando o
-  usuário apertar a tecla ESC ou fechar a janela.
+  Função que verifica se o jogo ainda está rodando. O jogo só
+  é encerrado quando o usuário apertar a tecla ESC ou fechar
+  a janela. Retorna um valor booleano.
 */
 
 bool jogo_rodando(Jogo *J) {
