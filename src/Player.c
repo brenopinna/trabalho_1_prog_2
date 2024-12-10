@@ -67,7 +67,7 @@ void mudar_frame(Player *p) {
   struct Player a permissão ou não de movimento para cada direção.
 */
 
-void verificar_movimento(Map *M, Player *p) {
+void verificar_movimento(Map *m, Player *p) {
   /* Coleta a posição do jogador em uma variável local para comparação. */
   int x = p->x, y = p->y;
 
@@ -91,10 +91,10 @@ void verificar_movimento(Map *M, Player *p) {
 
   /* Verifica os blocos que estariam em cada um dos quatro cantos do sprite do
      jogador. Os códigos dos blocos são salvos em strings temporárias. */
-  char *bloco_up_right = pegar_bloco_da_posicao(M, x + margem_right, y + margem_top); // Canto superior direito.
-  char *bloco_up_left = pegar_bloco_da_posicao(M, x + margem_left, y + margem_top); // Canto superior esquerdo.
-  char *bloco_bottom_right = pegar_bloco_da_posicao(M, x + margem_right, y + margem_bottom); // Canto inferior direito.
-  char *bloco_bottom_left = pegar_bloco_da_posicao(M, x + margem_left, y + margem_bottom); // Canto inferior esquerdo.
+  char *bloco_up_right = pegar_bloco_da_posicao(m, x + margem_right, y + margem_top); // Canto superior direito.
+  char *bloco_up_left = pegar_bloco_da_posicao(m, x + margem_left, y + margem_top); // Canto superior esquerdo.
+  char *bloco_bottom_right = pegar_bloco_da_posicao(m, x + margem_right, y + margem_bottom); // Canto inferior direito.
+  char *bloco_bottom_left = pegar_bloco_da_posicao(m, x + margem_left, y + margem_bottom); // Canto inferior esquerdo.
 
   /* Verifica se cada um dos blocos encontrados anteriormente é andável
     ou não e usa isso para registrar na struct Player se o jogador pode
