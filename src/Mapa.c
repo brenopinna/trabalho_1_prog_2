@@ -109,8 +109,6 @@ void criar_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *arqui
       strcpy(m->tiles[line][col], s); // Salva o código na matriz de códigos de blocos.
       desenhar_tile(background_sprites, s, col, line); // Renderiza o bloco correspondente para o bitmap.
 
-      // TODO: Renderizar objetos decorativos separadamente.
-
       /* Lógica de renderização das árvores. Elas são desenhadas por cima do resto do mapa. */
       // Verifica se o bloco que acabou de ser desenhado é um bloco de terra.
       if (s[0] == BLOCO_TERRA) {

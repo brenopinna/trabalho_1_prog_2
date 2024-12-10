@@ -27,18 +27,12 @@ struct Jogo {
   int frame_count; // Contagem de quadros renderizados. Usada para controlar a velocidade da animação do sprite do jogador.
 };
 
-// TODO: Ver uma forma de renderizar a árvore em somente um bloco.
-// TODO: Precisa colidir com a parte debaixo e passar atrás da parte de cima.
-// TODO: Tem que ter uma renderização diferenciada para isso.
-
 /*
   Função que faz a configuração inicial de um novo jogo.
   Retorna um ponteiro para uma struct Jogo alocada dinamicamente.
 */
 
 Jogo *novo_jogo() {
-  // TODO: Remover fontes. Usei só pra testar.
-
   /* Inicialização dos sistemas do Allegro necessários. */
   al_init();
   al_init_image_addon();
@@ -140,8 +134,6 @@ void atualizar_jogo(Jogo *J) {
       if (J->mapa != 2)
         troca_mapa = true;
     }
-
-    // TODO: Isolar essa parte de trocar mapa em outra função e refatorá-la.
 
     /* Troca o mapa caso o jogador tenha passado dos limites do mapa (à
        direita e à esquerda, respectivamente) ou caso o usuário tenha
