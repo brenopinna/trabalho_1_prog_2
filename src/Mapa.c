@@ -95,7 +95,7 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
   for (int line = 0; line < MAP_BLOCK_HEIGHT; line++) {
     for (int col = 0; col < MAP_BLOCK_WIDTH; col++) {
       int n = fscanf(f, "%s", s); // Lê o código de um bloco.
-      assert(n != 0); // O jogo é encerrado abruptamente a leitura de um bloco falhar.
+      assert(n != 0); // O jogo encerra abruptamente se a leitura de um bloco falhar.
       strcpy(m->tileset[line][col], s); // Salva o código na matriz de códigos de blocos.
       draw_tile(background_sprites, s, col, line); // Renderiza o bloco correspondente para o bitmap.
 
