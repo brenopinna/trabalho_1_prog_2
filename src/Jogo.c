@@ -51,7 +51,7 @@ Jogo *novo_jogo() {
   Jogo *J = malloc(sizeof(Jogo));
 
   // Dados usados internamente pelo Allegro.
-  J->disp = al_create_display(MAP_PX_WIDTH, MAP_PX_HEIGHT);
+  J->disp = al_create_display(MAPA_LARGURA_PX, MAPA_ALTURA_PX);
   J->timer = al_create_timer(1.0 / 120.0);
   J->queue = al_create_event_queue();
   J->f = al_create_builtin_font();
@@ -60,7 +60,7 @@ Jogo *novo_jogo() {
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
   J->player = criar_player(); // Função definida em Player.c.
   J->mapas = malloc(2 * sizeof(Map *)); // Reserva espaço para dois mapas.
-  J->mapas[0] = init_map(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
+  J->mapas[0] = iniciar_mapa(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
 
@@ -117,22 +117,22 @@ void atualizar_jogo(Jogo *J) {
        jogador. A animação só ocorre quando o jogador está andando
        e avança um quadro a cada dez quadros renderizados. */
     if (J->frame_count >= 10 && J->player->andando) {
-      muda_frame(J->player); // Função definida em Player.c.
+      mudar_frame(J->player); // Função definida em Player.c.
       J->frame_count = 0; // Reinicia a contagem de quadros renderizados.
     }
 
     /* Verifica se o usuário deu algum comando de teclado válido
        e executa a ação correspondente ao comando detectado. */
 
-    /* Movimento do jogador. Função move_player definida em Player.c. */
+    /* Movimento do jogador. Função mover_player definida em Player.c. */
     if (J->keys[ALLEGRO_KEY_UP]) { // Para cima.
-      move_player(J->player, PLAYER_DIRECTION_UP, J->mapas[J->mapa - 1]); // J->mapas[J->mapa - 1] é o mapa atual.
+      mover_player(J->player, PLAYER_DIRECAO_CIMA, J->mapas[J->mapa - 1]); // J->mapas[J->mapa - 1] é o mapa atual.
     } else if (J->keys[ALLEGRO_KEY_DOWN]) { // Para baixo.
-      move_player(J->player, PLAYER_DIRECTION_DOWN, J->mapas[J->mapa - 1]);
+      mover_player(J->player, PLAYER_DIRECAO_BAIXO, J->mapas[J->mapa - 1]);
     } else if (J->keys[ALLEGRO_KEY_RIGHT]) { // Para a direita.
-      move_player(J->player, PLAYER_DIRECTION_RIGHT, J->mapas[J->mapa - 1]);
+      mover_player(J->player, PLAYER_DIRECAO_DIREITA, J->mapas[J->mapa - 1]);
     } else if (J->keys[ALLEGRO_KEY_LEFT]) { // Para a esquerda.
-      move_player(J->player, PLAYER_DIRECTION_LEFT, J->mapas[J->mapa - 1]);
+      mover_player(J->player, PLAYER_DIRECAO_ESQUERDA, J->mapas[J->mapa - 1]);
     }
 
     /* Troca instantânea de mapa a pedido do usuário.
@@ -152,11 +152,11 @@ void atualizar_jogo(Jogo *J) {
        feito a troca instantânea de mapa. Funções finalizar_mapa e
        init_map definidas em Mapa.c. */
 
-    /* Troca do Mapa 1 para o Mapa 2. */
-    if (J->mapa == 1 && (J->player->x >= MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE || troca_mapa)) {
+       /* Troca do Mapa 1 para o Mapa 2. */
+    if (J->mapa == 1 && (J->player->x >= MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA || troca_mapa)) {
       finalizar_mapa(J->mapas[J->mapa - 1]);
       J->mapa = 2;
-      J->mapas[J->mapa - 1] = init_map(J->disp, "map_2.txt");
+      J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_2.txt");
       J->player->x = 1; // Teleporta o jogador para o lado esquerdo do mapa.
     }
 
@@ -164,16 +164,16 @@ void atualizar_jogo(Jogo *J) {
     else if (J->mapa == 2 && (J->player->x <= 0 || troca_mapa)) {
       finalizar_mapa(J->mapas[J->mapa - 1]);
       J->mapa = 1;
-      J->mapas[J->mapa - 1] = init_map(J->disp, "map_1.txt");
-      J->player->x = MAP_PX_WIDTH - PLAYER_SCALED_SPRITE_SIZE - 1; // Teleporta o jogador para o lado direito do mapa.
+      J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_1.txt");
+      J->player->x = MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
     }
 
     /* Reseta a posição do jogador para o padrão caso a
        troca de mapa tenha sido a pedido do usuário. */
     if (troca_mapa) {
-      J->player->x = PLAYER_SCALED_SPRITE_SIZE;
-      J->player->y = PLAYER_SCALED_SPRITE_SIZE;
-      J->player->direction = PLAYER_DIRECTION_DOWN;
+      J->player->x = PLAYER_TAMANHO_SPRITE_REDUZIDA;
+      J->player->y = PLAYER_TAMANHO_SPRITE_REDUZIDA;
+      J->player->direcao = PLAYER_DIRECAO_BAIXO;
     }
 
     /* Lógica de renderização. */
@@ -182,18 +182,18 @@ void atualizar_jogo(Jogo *J) {
     al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
 
     // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
-    al_draw_scaled_bitmap(J->player->image, J->player->frame * PLAYER_SPRITE_SIZE, J->player->direction * PLAYER_SPRITE_SIZE,
-        PLAYER_SPRITE_SIZE, PLAYER_SPRITE_SIZE, J->player->x, J->player->y, PLAYER_SCALED_SPRITE_SIZE, PLAYER_SCALED_SPRITE_SIZE, 0);
+    al_draw_scaled_bitmap(J->player->imagem, J->player->frame * PLAYER_TAMANHO_SPRITE, J->player->direcao * PLAYER_TAMANHO_SPRITE,
+                          PLAYER_TAMANHO_SPRITE, PLAYER_TAMANHO_SPRITE, J->player->x, J->player->y, PLAYER_TAMANHO_SPRITE_REDUZIDA, PLAYER_TAMANHO_SPRITE_REDUZIDA, 0);
 
     // TODO: Remover essa exibição de texto. Estou usando só para debugging.
     char s[200];
 
     sprintf(s, "x: %d, y: %d\nUPRIGHT: %s\nUPLEFT: %s\nBOTTOMRIGHT: %s\nBOTTOMLEFT: %s\nPFRAME: %d\n",
             J->player->x, J->player->y,
-            get_block_from_position(J->mapas[J->mapa - 1], J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y),
-            get_block_from_position(J->mapas[J->mapa - 1], J->player->x, J->player->y),
-            get_block_from_position(J->mapas[J->mapa - 1], J->player->x + PLAYER_SCALED_SPRITE_SIZE, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
-            get_block_from_position(J->mapas[J->mapa - 1], J->player->x, J->player->y + PLAYER_SCALED_SPRITE_SIZE),
+            pegar_bloco_da_posicao(J->mapas[J->mapa - 1], J->player->x + PLAYER_TAMANHO_SPRITE_REDUZIDA, J->player->y),
+            pegar_bloco_da_posicao(J->mapas[J->mapa - 1], J->player->x, J->player->y),
+            pegar_bloco_da_posicao(J->mapas[J->mapa - 1], J->player->x + PLAYER_TAMANHO_SPRITE_REDUZIDA, J->player->y + PLAYER_TAMANHO_SPRITE_REDUZIDA),
+            pegar_bloco_da_posicao(J->mapas[J->mapa - 1], J->player->x, J->player->y + PLAYER_TAMANHO_SPRITE_REDUZIDA),
             J->player->frame
     );
 

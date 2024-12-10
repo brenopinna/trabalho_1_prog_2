@@ -3,39 +3,39 @@
 #include <allegro5/allegro5.h>
 #include <Mapa.h>
 
-#define PLAYER_DIRECTION_DOWN      0
-#define PLAYER_DIRECTION_LEFT      1
-#define PLAYER_DIRECTION_UP        2
-#define PLAYER_DIRECTION_RIGHT     3
+#define PLAYER_DIRECAO_BAIXO     0
+#define PLAYER_DIRECAO_ESQUERDA  1
+#define PLAYER_DIRECAO_CIMA      2
+#define PLAYER_DIRECAO_DIREITA   3
 
-#define PLAYER_SPEED               2
+#define PLAYER_VELOCIDADE               2
 
-#define PLAYER_SPRITE_SIZE        32
-#define PLAYER_SCALED_SPRITE_SIZE 52
+#define PLAYER_TAMANHO_SPRITE          32
+#define PLAYER_TAMANHO_SPRITE_REDUZIDA 52
 
 typedef struct Player {
-  ALLEGRO_BITMAP *image;
+  ALLEGRO_BITMAP *imagem;
   int x;
   int y;
   int velocidade;
   int andando;
-  int direction;
+  int direcao;
   int frame;
-  bool revert_frame;
-  bool can_move_up;
-  bool can_move_down;
-  bool can_move_left;
-  bool can_move_right;
+  bool inverte_frame;
+  bool pode_mover_cima;
+  bool pode_mover_baixo;
+  bool pode_mover_esquerda;
+  bool pode_mover_direita;
 } Player;
 
 Player *criar_player();
 
-void parar_player(Player *P);
+void parar_player(Player *p);
 
-void muda_frame(Player *P);
+void mudar_frame(Player *p);
 
-void verifica_movimento(Map *M, Player *P);
+void verificar_movimento(Map *m, Player *p);
 
-void move_player(Player *P, int direction, Map *M);
+void mover_player(Player *p, int direcao, Map *m);
 
-void finalizar_player(Player *P);
+void finalizar_player(Player *p);
