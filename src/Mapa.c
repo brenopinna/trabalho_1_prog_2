@@ -17,13 +17,13 @@
 */
 
 Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
-  /* Aloca dinamicamente uma nova struct Map. */
+  /* Aloca dinamicamente uma nova struct Map e inicializa-a. */
   Map *m = malloc(sizeof(Map));
 
   m->background = al_create_bitmap(MAP_PX_WIDTH, MAP_PX_HEIGHT); // Cria o bitmap onde o mapa é renderizado.
   al_set_target_bitmap(m->background); // Faz com que o Allegro passe a desenhar no bitmap ao invés de desenhar no backbuffer da tela.
 
-  m->tileset = cria_matriz_de_codigos_de_blocos();
+  m->tileset = cria_matriz_de_codigos_de_blocos(); // Carrega os dados contidos no arquivo do mapa para uma matriz.
 
   ALLEGRO_BITMAP *background_sprites = al_load_bitmap("assets/background-sprites.png"); // Carrega no Allegro a imagem dos blocos de cenário.
   cria_cenario(background_sprites, m, map_filename); // Lê o arquivo do mapa e renderiza o mapa no bitmap.
@@ -41,15 +41,12 @@ Map *init_map(ALLEGRO_DISPLAY *display, const char *map_filename) {
 */
 
 char ***cria_matriz_de_codigos_de_blocos() {
-  /* Aloca dinamicamente um vetor de ponteiros para as linhas da matriz. */
-  char ***mat = calloc(MAP_BLOCK_HEIGHT, sizeof(char **));
+  char ***mat = calloc(MAP_BLOCK_HEIGHT, sizeof(char **)); // Aloca um vetor de ponteiros para as linhas da matriz.
 
   for (int i = 0; i < MAP_BLOCK_HEIGHT; i++) {
-    /* Aloca dinamicamente um vetor de ponteiros para os elementos de uma linha da matriz. */
-    mat[i] = calloc(MAP_BLOCK_WIDTH, sizeof(char *));
+    mat[i] = calloc(MAP_BLOCK_WIDTH, sizeof(char *)); // Aloca um vetor de ponteiros para os elementos de uma linha da matriz.
     for (int j = 0; j < MAP_BLOCK_WIDTH; j++) {
-      /* Aloca dinamicamente uma string de três caracteres, em que será armazenado o código de um bloco. */
-      mat[i][j] = calloc(3, sizeof(char));
+      mat[i][j] = calloc(3, sizeof(char)); // Aloca uma string de três caracteres, em que será armazenado o código de um bloco.
     }
   }
 
@@ -63,14 +60,11 @@ char ***cria_matriz_de_codigos_de_blocos() {
 void finaliza_matriz_de_codigos_de_blocos(char ***matriz) {
   for (int i = 0; i < MAP_BLOCK_HEIGHT; i++) {
     for (int j = 0; j < MAP_BLOCK_WIDTH; j++) {
-      /* Libera a memória de uma string da matriz (um bloco). */
-      free(matriz[i][j]);
+      free(matriz[i][j]); // Libera a memória de uma string da matriz (um bloco).
     }
-    /* Libera a memória do vetor de ponteiros para os elementos de uma linha da matriz. */
-    free(matriz[i]);
+    free(matriz[i]); // Libera a memória do vetor de ponteiros de uma linha da matriz.
   }
-  /* Libera a memória do vetor de ponteiros para as linhas da matriz. */
-  free(matriz);
+  free(matriz); // Libera a memória do vetor de ponteiros para as linhas da matriz.
 }
 
 /*
@@ -79,6 +73,7 @@ void finaliza_matriz_de_codigos_de_blocos(char ***matriz) {
 */
 
 void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_filename) {
+  /* Abre o arquivo do mapa no modo de leitura. */
   FILE *f = fopen(map_filename, "r");
 
   /* Mensagem de erro exibida caso o jogo não consiga abrir o arquivo do mapa ou não o encontre. */
@@ -86,11 +81,10 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
     puts("Nao foi possivel abrir o arquivo do mapa. Reinicie o jogo e tente novamente.");
   }
 
-  /* Aloca dinamicamente uma string de três caracteres, em que será armazenado o código de um bloco. */
-  char *s = malloc(sizeof(char) * 3);
+  char *s = malloc(sizeof(char) * 3); // String temporária que armazena um código de bloco por vez.
 
-  /* Lógica de renderização do mapa para o bitmap.
-     Executada em loop, uma vez para cada bloco. */
+  /* Lógica de renderização do mapa para o bitmap. Ela
+     é executada em loop, uma vez para cada bloco. */
   for (int line = 0; line < MAP_BLOCK_HEIGHT; line++) {
     for (int col = 0; col < MAP_BLOCK_WIDTH; col++) {
       int n = fscanf(f, "%s", s); // Lê o código de um bloco.
@@ -100,11 +94,12 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
 
       // TODO: Renderizar objetos decorativos separadamente.
 
-      /* Renderiza as árvores. Uma árvore é renderizada toda vez que houver
-         pelo menos dois blocos de terra adjacentes na vertical. */
+      /* Lógica de renderização das árvores. Elas são desenhadas por cima do resto do mapa. */
+      
+      // Verifica se o bloco que acabou de ser desenhado é um bloco de terra.
       if (!bloco_andavel(s) && s[0] != WATER_BLOCK && s[0] != WATER_BLOCK_CORNER && s[0] != WATER_LAND_BLOCK) {
 
-        // Se o bloco logo acima não for andável, desenha a árvore completa, de cima para baixo.
+        // Se o bloco logo acima dele não for andável, desenha a árvore completa, de cima para baixo.
         if (line > 0 && !bloco_andavel(m->tileset[line - 1][col])) {
           draw_tile(background_sprites, "a2", col, line);
           draw_tile(background_sprites, "a1", col, line - 1);
@@ -115,7 +110,7 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
           draw_tile(background_sprites, "a2", col, line);
         }
 
-        // Se for a última linha do cenário, desenha só a parte de cima.
+        // Se for a última linha do cenário, desenha só a parte de cima da árvore.
         if (line == MAP_BLOCK_HEIGHT - 1) {
           draw_tile(background_sprites, "a1", col, line);
         }
@@ -123,7 +118,10 @@ void cria_cenario(ALLEGRO_BITMAP *background_sprites, Map *m, const char *map_fi
     }
   }
 
+  /* Libera a memória da string. */
   free(s);
+
+  /* Fecha o arquivo do mapa. */
   fclose(f);
 }
 
@@ -147,28 +145,29 @@ void draw_tile(ALLEGRO_BITMAP *background_sprites, const char *block_type, int d
 */
 
 int *mapeia_codigo_para_bloco(const char *s) {
+  /* Extrai do código os valores necessários para calcular as coordenadas do bloco. */
   char c; int n, x = 0, y = 0;
   sscanf(s, "%c%d", &c, &n);
 
-  if (c == GRASS_BLOCK) {
+  if (c == GRASS_BLOCK) { // Grama.
     x = (n - 1) % 3;
     y = (n - 1) / 3;
-  } else if (c == LAND_BLOCK) {
+  } else if (c == LAND_BLOCK) { // Terra.
     x = 5 + (n - 1) % 3;
     y = (n - 1) / 3;
-  } else if (c == WATER_LAND_BLOCK) {
+  } else if (c == WATER_LAND_BLOCK) { // Água com fundo de terra.
     x = 15 + (n - 1) % 3;
     y = (n - 1) / 3;
-  } else if (c == GRASS_BLOCK_CORNER) {
+  } else if (c == GRASS_BLOCK_CORNER) { // Canto de grama.
     x = 3 + (n - 1) % 2;
     y = (n - 1) / 2;
-  } else if (c == WATER_BLOCK) {
+  } else if (c == WATER_BLOCK) { // Água.
     x = 10 + (n - 1) % 3;
     y = (n - 1) / 3;
-  } else if (c == WATER_BLOCK_CORNER) {
+  } else if (c == WATER_BLOCK_CORNER) { // Canto de água.
     x = 13 + (n - 1) % 2;
     y = (n - 1) / 2;
-  } else if (c == TREE_BLOCK) {
+  } else if (c == TREE_BLOCK) { // Árvore.
     x = 0;
     y = 9 + n;
   }
@@ -185,10 +184,11 @@ int *mapeia_codigo_para_bloco(const char *s) {
 */
 
 bool bloco_andavel(const char *block) {
-  bool andavel = block[0] != WATER_BLOCK &&
-    block[0] != LAND_BLOCK &&
-    block[0] != WATER_LAND_BLOCK &&
-    block[0] != WATER_BLOCK_CORNER;
+  /* Lista de blocos não andáveis. */
+  bool andavel = block[0] != WATER_BLOCK && // Água.
+    block[0] != LAND_BLOCK && // Terra.
+    block[0] != WATER_LAND_BLOCK && // Água com fundo de terra.
+    block[0] != WATER_BLOCK_CORNER; // Canto de água.
 
   return andavel;
 }
