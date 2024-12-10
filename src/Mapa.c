@@ -54,7 +54,7 @@ char ***criar_matriz_de_codigos_de_blocos() {
 
   /* Aloca um vetor de ponteiros para os elementos de uma linha da matriz. */
   for (int i = 0; i < MAPA_ALTURA_BLOCOS; i++) {
-    mat[i] = calloc(MAPA_LARGURA_BLOCOS, sizeof(char *)); // 
+    mat[i] = calloc(MAPA_LARGURA_BLOCOS, sizeof(char *));
     for (int j = 0; j < MAPA_LARGURA_BLOCOS; j++) {
 
       /* Aloca uma string de três caracteres, em que será armazenado o código de um bloco. */
