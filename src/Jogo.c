@@ -43,7 +43,6 @@ Jogo *novo_jogo() {
   al_init();
   al_init_image_addon();
   al_install_keyboard();
-  al_init_font_addon();
 
   /* Aloca dinamicamente uma nova struct Jogo e inicializa-a. */
   Jogo *J = malloc(sizeof(Jogo));
