@@ -6,6 +6,8 @@
 #include <Mapa.h>
 #include <Player.h>
 #include <Jogo.h>
+#include <Entity.h>
+#include <time.h>
 
 /*
   Definição da struct Jogo. Ela armazena todas as informações
@@ -20,7 +22,9 @@ struct Jogo {
   ALLEGRO_EVENT event; // Evento.
 
   /* Dados usados pelo jogo em si. */
-  Player *player;  // Ponteiro para uma struct Player.
+  Entity *player;  // Ponteiro para uma struct Player.
+  Entity *enemy;
+  Entity *enemy2;
   Map **mapas; // Vetor de ponteiros para structs Map. Mantém a lista dos mapas do jogo.
   int mapa; // Mantém registrado qual mapa está aberto no momento.
   bool *keys; // Vetor que armazena o estado das teclas do teclado.
@@ -37,6 +41,8 @@ struct Jogo {
 */
 
 Jogo *novo_jogo() {
+  srand(time(NULL));
+
   // TODO: Remover fontes. Usei só pra testar.
 
   /* Inicialização dos sistemas do Allegro necessários. */
@@ -55,6 +61,8 @@ Jogo *novo_jogo() {
   // Dados usados pelo jogo em si.
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
   J->player = criar_player(); // Função definida em Player.c.
+  J->enemy = criar_entidade();
+  J->enemy2 = criar_entidade();
   J->mapas = malloc(2 * sizeof(Map *)); // Reserva espaço para dois mapas.
   J->mapas[0] = iniciar_mapa(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
@@ -100,7 +108,7 @@ void atualizar_jogo(Jogo *J) {
     J->keys[J->event.keyboard.keycode] = true;
   } else if (J->event.type == ALLEGRO_EVENT_KEY_UP) {
     J->keys[J->event.keyboard.keycode] = false;
-    parar_player(J->player); // Se qualquer tecla for solta, o jogador para.
+    parar_entidade(J->player); // Se qualquer tecla for solta, o jogador para.
   }
 
   /* Lógica principal da atualização do jogo. Só é executada em sincronia com
@@ -112,23 +120,41 @@ void atualizar_jogo(Jogo *J) {
     /* Controla a ocorrência e a velocidade da animação do sprite do
        jogador. A animação só ocorre quando o jogador está andando
        e avança um quadro a cada dez quadros renderizados. */
-    if (J->frame_count >= 10 && J->player->andando) {
+    if (!(J->frame_count % 10) && J->player->andando) {
       mudar_frame(J->player); // Função definida em Player.c.
-      J->frame_count = 0; // Reinicia a contagem de quadros renderizados.
+      // J->frame_count = 0; // Reinicia a contagem de quadros renderizados.
     }
+
+    if (!(J->frame_count % 10)) {
+      if (!(J->frame_count % (70 + (rand() % 4) * 10))) {
+        J->enemy->direcao = rand() % 4;
+      }
+      if (!(J->frame_count % (70 + (rand() % 4) * 10))) {
+        J->enemy2->direcao = rand() % 4;
+      }
+
+      if (J->enemy->andando)
+        mudar_frame(J->enemy); // Função definida em Player.c.
+      if (J->enemy2->andando)
+        mudar_frame(J->enemy2); // Função definida em Player.c.
+      // J->frame_count = 0; // Reinicia a contagem de quadros renderizados.
+    }
+
+    mover_entidade(J->enemy, J->enemy->direcao, J->mapas[J->mapa - 1]);
+    mover_entidade(J->enemy2, J->enemy2->direcao, J->mapas[J->mapa - 1]);
 
     /* Verifica se o usuário deu algum comando de teclado válido
        e executa a ação correspondente ao comando detectado. */
 
        /* Movimento do jogador. Função mover_player definida em Player.c. */
     if (J->keys[ALLEGRO_KEY_UP]) { // Para cima.
-      mover_player(J->player, PLAYER_DIRECAO_CIMA, J->mapas[J->mapa - 1]); // J->mapas[J->mapa - 1] é o mapa atual.
+      mover_entidade(J->player, ENTITY_DIRECAO_CIMA, J->mapas[J->mapa - 1]); // J->mapas[J->mapa - 1] é o mapa atual.
     } else if (J->keys[ALLEGRO_KEY_DOWN]) { // Para baixo.
-      mover_player(J->player, PLAYER_DIRECAO_BAIXO, J->mapas[J->mapa - 1]);
+      mover_entidade(J->player, ENTITY_DIRECAO_BAIXO, J->mapas[J->mapa - 1]);
     } else if (J->keys[ALLEGRO_KEY_RIGHT]) { // Para a direita.
-      mover_player(J->player, PLAYER_DIRECAO_DIREITA, J->mapas[J->mapa - 1]);
+      mover_entidade(J->player, ENTITY_DIRECAO_DIREITA, J->mapas[J->mapa - 1]);
     } else if (J->keys[ALLEGRO_KEY_LEFT]) { // Para a esquerda.
-      mover_player(J->player, PLAYER_DIRECAO_ESQUERDA, J->mapas[J->mapa - 1]);
+      mover_entidade(J->player, ENTITY_DIRECAO_ESQUERDA, J->mapas[J->mapa - 1]);
     }
 
     /* Troca instantânea de mapa a pedido do usuário.
@@ -149,7 +175,7 @@ void atualizar_jogo(Jogo *J) {
        init_map definidas em Mapa.c. */
 
        /* Troca do Mapa 1 para o Mapa 2. */
-    if (J->mapa == 1 && (J->player->x >= MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA || troca_mapa)) {
+    if (J->mapa == 1 && (J->player->x >= MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA || troca_mapa)) {
       finalizar_mapa(J->mapas[J->mapa - 1]);
       J->mapa = 2;
       J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_2.txt");
@@ -161,15 +187,15 @@ void atualizar_jogo(Jogo *J) {
       finalizar_mapa(J->mapas[J->mapa - 1]);
       J->mapa = 1;
       J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_1.txt");
-      J->player->x = MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
+      J->player->x = MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
     }
 
     /* Reseta a posição do jogador para o padrão caso a
        troca de mapa tenha sido a pedido do usuário. */
     if (troca_mapa) {
-      J->player->x = PLAYER_TAMANHO_SPRITE_REDUZIDA;
-      J->player->y = PLAYER_TAMANHO_SPRITE_REDUZIDA;
-      J->player->direcao = PLAYER_DIRECAO_BAIXO;
+      J->player->x = ENTITY_TAMANHO_SPRITE_REDUZIDA;
+      J->player->y = ENTITY_TAMANHO_SPRITE_REDUZIDA;
+      J->player->direcao = ENTITY_DIRECAO_BAIXO;
     }
 
     /* Lógica de renderização. */
@@ -178,8 +204,17 @@ void atualizar_jogo(Jogo *J) {
     al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
 
     // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
-    al_draw_scaled_bitmap(J->player->imagem, J->player->frame * PLAYER_TAMANHO_SPRITE, J->player->direcao * PLAYER_TAMANHO_SPRITE,
-                          PLAYER_TAMANHO_SPRITE, PLAYER_TAMANHO_SPRITE, J->player->x, J->player->y, PLAYER_TAMANHO_SPRITE_REDUZIDA, PLAYER_TAMANHO_SPRITE_REDUZIDA, 0);
+
+    al_draw_tinted_scaled_bitmap(J->enemy->imagem, al_map_rgba(50, 100, 255, 150), J->enemy->frame * ENTITY_TAMANHO_SPRITE, J->enemy->direcao * ENTITY_TAMANHO_SPRITE,
+                                 ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, J->enemy->x, J->enemy->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
+    al_draw_tinted_scaled_bitmap(J->enemy2->imagem, al_map_rgba(50, 100, 255, 150), J->enemy2->frame * ENTITY_TAMANHO_SPRITE, J->enemy2->direcao * ENTITY_TAMANHO_SPRITE,
+                                 ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, J->enemy2->x, J->enemy2->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
+    // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
+    // al_draw_scaled_bitmap(J->enemy2->imagem, J->enemy2->frame * ENTITY_TAMANHO_SPRITE, J->enemy2->direcao * ENTITY_TAMANHO_SPRITE,
+    //                       ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, J->enemy2->x, J->enemy2->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
+    // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
+    al_draw_scaled_bitmap(J->player->imagem, J->player->frame * ENTITY_TAMANHO_SPRITE, J->player->direcao * ENTITY_TAMANHO_SPRITE,
+                          ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, J->player->x, J->player->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
 
     // Atualiza a tela com o novo quadro renderizado.
     al_flip_display();
@@ -199,7 +234,9 @@ void finalizar_jogo(Jogo *J) {
 
   /* Dados usados pelo jogo em si. */
   free(J->keys);
-  finalizar_player(J->player); // Função definida em Player.c.
+  finalizar_entidade(J->player); // Função definida em Player.c.
+  finalizar_entidade(J->enemy);
+  finalizar_entidade(J->enemy2);
   finalizar_mapa(J->mapas[J->mapa - 1]); // Função definida em Mapa.c.
   free(J->mapas);
 
