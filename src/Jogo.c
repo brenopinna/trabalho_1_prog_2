@@ -151,7 +151,7 @@ void atualizar_jogo(Jogo *J) {
        feito a troca instantânea de mapa. Funções finalizar_mapa e
        init_map definidas em Mapa.c. */
 
-       /* Troca do Mapa 1 para o Mapa 2. */
+    /* Troca do Mapa 1 para o Mapa 2. */
     if (J->mapa == 1 && (J->player->x >= MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA || troca_mapa)) {
       finalizar_mapa(J->mapa_atual->map);
       J->mapa = 2;
