@@ -24,7 +24,7 @@ struct Jogo {
   Player *player;  // Ponteiro para uma struct Player.
   MapNode *lista_mapas;
   MapNode *mapa_atual;
-  int mapa; // Mantém registrado qual mapa está aberto no momento.
+  int n_mapa; // Mantém registrado qual mapa está aberto no momento.
   bool *keys; // Vetor que armazena o estado das teclas do teclado.
   int frame_count; // Contagem de quadros renderizados. Usada para controlar a velocidade da animação do sprite do jogador.
 };
@@ -60,7 +60,7 @@ Jogo *novo_jogo() {
   J->lista_mapas = criar_lista_de_mapas();
   J->mapa_atual = J->lista_mapas;
   J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
-  J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
+  J->n_mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
 
   /* Registra as fontes de eventos utilizadas. */
@@ -134,48 +134,61 @@ void atualizar_jogo(Jogo *J) {
       mover_player(J->player, PLAYER_DIRECAO_ESQUERDA, J->mapa_atual->map);
     }
 
-    /* Troca instantânea de mapa a pedido do usuário.
-       Só ocorre se o mapa escolhido não for o atual. */
+    /* Troca instantânea de mapa a pedido do usuário. Funções
+       finalizar_mapa e iniciar_mapa definidas em Mapa.c. */
     else if (J->keys[ALLEGRO_KEY_1]) { // Mapa 1.
-      if (J->mapa != 1)
-        troca_mapa = true;
+      J->n_mapa = 1;
+      troca_mapa = true;
     } else if (J->keys[ALLEGRO_KEY_2]) { // Mapa 2.
-      if (J->mapa != 2)
-        troca_mapa = true;
+      J->n_mapa = 2;
+      troca_mapa = true;
+    } else if (J->keys[ALLEGRO_KEY_3]) { // Mapa 3.
+      J->n_mapa = 3;
+      troca_mapa = true;
+    } else if (J->keys[ALLEGRO_KEY_4]) { // Mapa 4.
+      J->n_mapa = 4;
+      troca_mapa = true;
+    } else if (J->keys[ALLEGRO_KEY_5]) { // Mapa 5.
+      J->n_mapa = 5;
+      troca_mapa = true;
     }
 
     // TODO: Isolar essa parte de trocar mapa em outra função e refatorá-la.
 
-    /* Troca o mapa caso o jogador tenha passado dos limites do mapa (à
-       direita e à esquerda, respectivamente) ou caso o usuário tenha
-       feito a troca instantânea de mapa. Funções finalizar_mapa e
-       init_map definidas em Mapa.c. */
+    /* Troca o mapa caso o usuário tenha feito a troca instantânea
+       de mapa ou caso o jogador tenha passado dos limites do mapa
+       (à direita e à esquerda, respectivamente). */
 
-    /* Troca do Mapa 1 para o Mapa 2. */
-    if (J->mapa == 1 && (J->player->x >= MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA || troca_mapa)) {
+    /* Realiza a troca instantânea de mapa e reseta
+      a posição do jogador para a padrão. */
+    if (troca_mapa) {
       finalizar_mapa(J->mapa_atual->map);
-      J->mapa = 2;
+      J->mapa_atual = selecionar_mapa(J->n_mapa, J->lista_mapas);
+      J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa);
+
+      J->player->x = PLAYER_TAMANHO_SPRITE_REDUZIDA;
+      J->player->y = PLAYER_TAMANHO_SPRITE_REDUZIDA;
+      J->player->direcao = PLAYER_DIRECAO_BAIXO;
+    }
+
+    /* Avança para o próximo mapa. */
+    if (J->player->x >= MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA) {
+      J->n_mapa++;
+      finalizar_mapa(J->mapa_atual->map);
       J->mapa_atual = J->mapa_atual->next;
       J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa);
       J->player->x = 1; // Teleporta o jogador para o lado esquerdo do mapa.
     }
 
-    /* Troca do Mapa 2 para o Mapa 1. */
-    else if (J->mapa == 2 && (J->player->x <= 0 || troca_mapa)) {
+    /* Volta para o mapa anterior. */
+    else if (J->player->x <= 0) {
+      J->n_mapa--;
       finalizar_mapa(J->mapa_atual->map);
-      J->mapa = 1;
       J->mapa_atual = J->mapa_atual->prev;
-      J->mapa_atual->map = iniciar_mapa(J->disp, "map_1.txt");
+      J->mapa_atual->map = iniciar_mapa(J->disp,  J->mapa_atual->arquivo_mapa);
       J->player->x = MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
     }
 
-    /* Reseta a posição do jogador para o padrão caso a
-       troca de mapa tenha sido a pedido do usuário. */
-    if (troca_mapa) {
-      J->player->x = PLAYER_TAMANHO_SPRITE_REDUZIDA;
-      J->player->y = PLAYER_TAMANHO_SPRITE_REDUZIDA;
-      J->player->direcao = PLAYER_DIRECAO_BAIXO;
-    }
 
     /* Lógica de renderização. */
 

@@ -13,4 +13,6 @@ MapNode* adicionar_mapa(const char* arquivo_mapa, MapNode* head);
 
 MapNode* criar_lista_de_mapas();
 
+MapNode* selecionar_mapa(int n, MapNode* head);
+
 void remover_mapas(MapNode* head);

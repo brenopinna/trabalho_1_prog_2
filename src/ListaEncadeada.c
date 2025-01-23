@@ -41,6 +41,16 @@ MapNode* criar_lista_de_mapas() {
   return head;
 }
 
+MapNode* selecionar_mapa(int n, MapNode* head) {
+  MapNode* p = head;
+  for(int i = 1; i < n; i++){
+    if(p->next != NULL) {
+      p = p->next;
+    }
+  }
+  return p;
+}
+
 void remover_mapas(MapNode* head) {
   if (head != NULL) {
     remover_mapas(head->next);
