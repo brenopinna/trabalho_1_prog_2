@@ -240,3 +240,4 @@ void finalizar_mapa(Map *m) {
   finalizar_matriz_de_codigos_de_blocos(m->tiles); // Libera a memória da matriz de códigos de blocos.
   free(m); // Libera a memória da struct Map em si.
 }
+
