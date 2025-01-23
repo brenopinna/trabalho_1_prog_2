@@ -27,6 +27,7 @@ typedef struct Entity {
   bool pode_mover_esquerda;
   bool pode_mover_direita;
   bool is_player;
+  bool is_goal;
 } Entity;
 
 Entity *criar_entidade();

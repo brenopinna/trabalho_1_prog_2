@@ -10,6 +10,7 @@
 #include <Entity.h>
 #include <time.h>
 #include <Texto.h>
+#include <Goal.h>
 
 /*
   Definição da struct Jogo. Ela armazena todas as informações
@@ -30,11 +31,13 @@ struct Jogo {
   Entity *player;  // Ponteiro para uma struct Player.
   Entity *enemy;
   Entity *enemy2;
+  Entity *goal;
   Map **mapas; // Vetor de ponteiros para structs Map. Mantém a lista dos mapas do jogo.
   int mapa; // Mantém registrado qual mapa está aberto no momento.
   bool *keys; // Vetor que armazena o estado das teclas do teclado.
   int frame_count; // Contagem de quadros renderizados. Usada para controlar a velocidade da animação do sprite do jogador.
   bool derrota;
+  bool vitoria;
   bool show_title;
 };
 
@@ -74,6 +77,7 @@ Jogo *novo_jogo() {
   J->player = criar_player(); // Função definida em Player.c.
   J->enemy = criar_entidade();
   J->enemy2 = criar_entidade();
+  J->goal = criar_objetivo();
 
   //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
   J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
@@ -83,7 +87,7 @@ Jogo *novo_jogo() {
   J->mapas[0] = iniciar_mapa(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
-  J->derrota = false;
+  J->derrota = J->vitoria = false;
   J->show_title = true;
 
   /* Registra as fontes de eventos utilizadas. */
@@ -133,7 +137,7 @@ void atualizar_jogo(Jogo *J) {
   /* Lógica principal da atualização do jogo. Só é executada em sincronia com
      o temporizador e quando não há mais outros eventos a serem processados. */
   if (J->event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
-    if (J->derrota) return;
+    if (J->derrota || J->vitoria) return;
     bool troca_mapa = false; // Indica se o mapa foi trocado a pedido do usuário ou não.
     if (!J->show_title) {
       if (!(J->frame_count % 10)) {
@@ -184,6 +188,10 @@ void atualizar_jogo(Jogo *J) {
         J->derrota = true;
       }
 
+      if (colidiu(J->player, J->goal)) {
+        J->vitoria = true;
+      }
+
       // TODO: Isolar essa parte de trocar mapa em outra função e refatorá-la.
 
       /* Troca o mapa caso o jogador tenha passado dos limites do mapa (à
@@ -231,7 +239,7 @@ void atualizar_jogo(Jogo *J) {
 
     /* Lógica de renderização. */
 
-    Entity *entities[] = { J->player, J->enemy, J->enemy2 };
+    Entity *entities[] = { J->player, J->enemy, J->enemy2, J->goal };
     int size = sizeof(entities) / sizeof(Entity *);
     for (int i = 0; i < size; i++) {
       bool troca = false;
@@ -246,29 +254,37 @@ void atualizar_jogo(Jogo *J) {
       if (!troca) break;
     }
 
-    if (!J->derrota) {
+    if (J->derrota) {
+      J->title = edit_text_bitmap(J->disp, J->title, "VOCÊ PERDEU!");
+      J->subtitle = edit_text_bitmap(J->disp, J->subtitle, "Reinicie o jogo e tente novamente.");
+      J->show_title = true;
+    } else if (J->vitoria) {
+      J->title = edit_text_bitmap(J->disp, J->title, "VOCÊ VENCEU!");
+      J->subtitle = edit_text_bitmap(J->disp, J->subtitle, "Reinicie o jogo para ganhar novamente!");
+      J->show_title = true;
+    } else {
       // Desenha o cenário.
       al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
 
-      for (int i = 0; i < 3; i++) {
+      for (int i = 0; i < size; i++) {
         if (entities[i]->is_player) {
           al_draw_scaled_bitmap(entities[i]->imagem, entities[i]->frame * ENTITY_TAMANHO_SPRITE, entities[i]->direcao * ENTITY_TAMANHO_SPRITE,
                                 ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, entities[i]->x, entities[i]->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
-        } else {
+        } else if (entities[i]->is_goal) // TODO: Adicionar outra verificacao pra saber se eh o ultimo mapa
+          al_draw_scaled_bitmap(entities[i]->imagem, 0, 0, GOAL_TAMANHO_SPRITE, GOAL_TAMANHO_SPRITE,
+                                entities[i]->x, entities[i]->y, GOAL_TAMANHO_SPRITE_REDUZIDA, GOAL_TAMANHO_SPRITE_REDUZIDA, 0);
+        else {
           al_draw_tinted_scaled_bitmap(entities[i]->imagem, al_map_rgba(50, 100, 255, 150), entities[i]->frame * ENTITY_TAMANHO_SPRITE, entities[i]->direcao * ENTITY_TAMANHO_SPRITE,
                                        ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, entities[i]->x, entities[i]->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
         }
       }
-
-    } else {
-      J->title = edit_text_bitmap(J->disp, J->title, "VOCÊ PERDEU!");
-      J->subtitle = edit_text_bitmap(J->disp, J->subtitle, "Reinicie o jogo e tente novamente.");
-      J->show_title = true;
     }
 
     if (J->show_title) {
       if (J->derrota) {
         al_clear_to_color(al_map_rgb(200, 0, 0));
+      } else if (J->vitoria) {
+        al_clear_to_color(al_map_rgb(0, 200, 0));
       }
       draw_centered_scaled_text(J->title, 3, 0, 0);
       draw_centered_scaled_text(J->subtitle, 1.6, 0, FONT_SIZE * 3);
@@ -296,6 +312,7 @@ void finalizar_jogo(Jogo *J) {
   finalizar_entidade(J->player); // Função definida em Player.c.
   finalizar_entidade(J->enemy);
   finalizar_entidade(J->enemy2);
+  finalizar_entidade(J->goal);
   finalizar_mapa(J->mapas[J->mapa - 1]); // Função definida em Mapa.c.
   free(J->mapas);
   free_text_bitmap(J->title);
