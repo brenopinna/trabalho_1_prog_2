@@ -197,7 +197,7 @@ void atualizar_jogo(Jogo *J) {
         J->derrota = true;
       }
 
-      if (colidiu(J->player, J->goal)) {
+      if (!J->mapa_atual->next && colidiu(J->player, J->goal)) {
         J->vitoria = true;
       }
 
@@ -282,7 +282,7 @@ void atualizar_jogo(Jogo *J) {
         if (entities[i]->is_player) {
           al_draw_scaled_bitmap(entities[i]->imagem, entities[i]->frame * ENTITY_TAMANHO_SPRITE, entities[i]->direcao * ENTITY_TAMANHO_SPRITE,
                                 ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, entities[i]->x, entities[i]->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
-        } else if (entities[i]->is_goal) // TODO: Adicionar outra verificacao pra saber se eh o ultimo mapa
+        } else if (entities[i]->is_goal && !J->mapa_atual->next) // TODO: Adicionar outra verificacao pra saber se eh o ultimo mapa
           al_draw_scaled_bitmap(entities[i]->imagem, 0, 0, GOAL_TAMANHO_SPRITE, GOAL_TAMANHO_SPRITE,
                                 entities[i]->x, entities[i]->y, GOAL_TAMANHO_SPRITE_REDUZIDA, GOAL_TAMANHO_SPRITE_REDUZIDA, 0);
         else {
