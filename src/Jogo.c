@@ -3,11 +3,13 @@
 #include <stdio.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
 #include <Mapa.h>
 #include <Player.h>
 #include <Jogo.h>
 #include <Entity.h>
 #include <time.h>
+#include <Texto.h>
 
 /*
   Definição da struct Jogo. Ela armazena todas as informações
@@ -20,6 +22,9 @@ struct Jogo {
   ALLEGRO_TIMER *timer; // Temporizador.
   ALLEGRO_EVENT_QUEUE *queue; // Fila de eventos.
   ALLEGRO_EVENT event; // Evento.
+  ALLEGRO_FONT *font;
+  Text *title;
+  Text *subtitle;
 
   /* Dados usados pelo jogo em si. */
   Entity *player;  // Ponteiro para uma struct Player.
@@ -30,6 +35,7 @@ struct Jogo {
   bool *keys; // Vetor que armazena o estado das teclas do teclado.
   int frame_count; // Contagem de quadros renderizados. Usada para controlar a velocidade da animação do sprite do jogador.
   bool derrota;
+  bool show_title;
 };
 
 // TODO: Ver uma forma de renderizar a árvore em somente um bloco.
@@ -50,6 +56,7 @@ Jogo *novo_jogo() {
   al_init();
   al_init_image_addon();
   al_install_keyboard();
+  al_init_font_addon();
 
   /* Aloca dinamicamente uma nova struct Jogo e inicializa-a. */
   Jogo *J = malloc(sizeof(Jogo));
@@ -58,6 +65,9 @@ Jogo *novo_jogo() {
   J->disp = al_create_display(MAPA_LARGURA_PX, MAPA_ALTURA_PX);
   J->timer = al_create_timer(1.0 / 120.0);
   J->queue = al_create_event_queue();
+  J->font = al_create_builtin_font();
+  J->title = create_text_bitmap(J->disp, "AS AVENTURAS DE JEMENELSON!", J->font, al_map_rgb(255, 255, 255));
+  J->subtitle = create_text_bitmap(J->disp, "pressione qualquer tecla para iniciar.", J->font, al_map_rgb(255, 255, 255));
 
   // Dados usados pelo jogo em si.
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
@@ -74,6 +84,7 @@ Jogo *novo_jogo() {
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
   J->derrota = false;
+  J->show_title = true;
 
   /* Registra as fontes de eventos utilizadas. */
   al_register_event_source(J->queue, al_get_keyboard_event_source());
@@ -113,6 +124,7 @@ void atualizar_jogo(Jogo *J) {
   /* Verifica se uma tecla foi pressionada ou solta e registra no vetor de teclas. */
   if (J->event.type == ALLEGRO_EVENT_KEY_DOWN) {
     J->keys[J->event.keyboard.keycode] = true;
+    if (J->show_title) J->show_title = false;
   } else if (J->event.type == ALLEGRO_EVENT_KEY_UP) {
     J->keys[J->event.keyboard.keycode] = false;
     parar_entidade(J->player); // Se qualquer tecla for solta, o jogador para.
@@ -232,6 +244,12 @@ void atualizar_jogo(Jogo *J) {
       if (!troca) break;
     }
 
+
+    if (J->show_title) {
+      draw_centered_scaled_text(J->title, 3, 0, 0);
+      draw_centered_scaled_text(J->subtitle, 1.6, 0, FONT_SIZE * 3);
+    }
+
     if (!J->derrota) {
       // Desenha o cenário.
       al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
@@ -273,6 +291,8 @@ void finalizar_jogo(Jogo *J) {
   finalizar_entidade(J->enemy2);
   finalizar_mapa(J->mapas[J->mapa - 1]); // Função definida em Mapa.c.
   free(J->mapas);
+  free_text_bitmap(J->title);
+  free_text_bitmap(J->subtitle);
 
   /* Finalização definitiva do Allegro. */
   al_uninstall_system();

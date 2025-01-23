@@ -6,7 +6,7 @@ SRC_DIR = src
 OBJ_DIR = object
 BIN_DIR = bin
 
-SRC_FILES = main.c src/Jogo.c src/Player.c src/Mapa.c src/Entity.c
+SRC_FILES = main.c src/Jogo.c src/Player.c src/Mapa.c src/Entity.c src/Texto.c
 
 OBJ_FILES = $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC_FILES)))
 
