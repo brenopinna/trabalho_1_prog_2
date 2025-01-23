@@ -22,7 +22,7 @@ struct Jogo {
 
   /* Dados usados pelo jogo em si. */
   Player *player;  // Ponteiro para uma struct Player.
-  MapNode *mapas;
+  MapNode *lista_mapas;
   MapNode *mapa_atual;
   int mapa; // Mantém registrado qual mapa está aberto no momento.
   bool *keys; // Vetor que armazena o estado das teclas do teclado.
@@ -57,9 +57,9 @@ Jogo *novo_jogo() {
   // Dados usados pelo jogo em si.
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
   J->player = criar_player(); // Função definida em Player.c.
-  J->mapas = adicionar_mapa("map_1.txt", NULL);
-  J->mapas->next = adicionar_mapa("map_2.txt", J->mapas);
-  J->mapa_atual = J->mapas;
+  J->lista_mapas = adicionar_mapa("map_1.txt", NULL);
+  J->lista_mapas->next = adicionar_mapa("map_2.txt", J->lista_mapas);
+  J->mapa_atual = J->lista_mapas;
   J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
@@ -207,7 +207,7 @@ void finalizar_jogo(Jogo *J) {
   free(J->keys);
   finalizar_player(J->player); // Função definida em Player.c.
   finalizar_mapa(J->mapa_atual->map); // Função definida em Mapa.c.
-  remover_mapas(J->mapas);
+  remover_mapas(J->lista_mapas);
 
   /* Finalização definitiva do Allegro. */
   al_uninstall_system();

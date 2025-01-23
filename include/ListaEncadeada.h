@@ -3,7 +3,7 @@
 #include <Mapa.h>
 
 typedef struct MapNode {
-  char arquivo_mapa[256];
+  char arquivo_mapa[16];
   Map* map;
   struct MapNode* prev;
   struct MapNode* next;
