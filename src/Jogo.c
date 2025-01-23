@@ -23,6 +23,7 @@ struct Jogo {
   /* Dados usados pelo jogo em si. */
   Player *player;  // Ponteiro para uma struct Player.
   MapNode *mapas;
+  MapNode *mapa_atual;
   int mapa; // Mantém registrado qual mapa está aberto no momento.
   bool *keys; // Vetor que armazena o estado das teclas do teclado.
   int frame_count; // Contagem de quadros renderizados. Usada para controlar a velocidade da animação do sprite do jogador.
@@ -57,7 +58,9 @@ Jogo *novo_jogo() {
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
   J->player = criar_player(); // Função definida em Player.c.
   J->mapas = adicionar_mapa("map_1.txt", NULL);
-  J->mapas->map = iniciar_mapa(J->disp, J->mapas->arquivo_mapa); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
+  J->mapas->next = adicionar_mapa("map_2.txt", J->mapas);
+  J->mapa_atual = J->mapas;
+  J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
 
@@ -123,13 +126,13 @@ void atualizar_jogo(Jogo *J) {
 
        /* Movimento do jogador. Função mover_player definida em Player.c. */
     if (J->keys[ALLEGRO_KEY_UP]) { // Para cima.
-      mover_player(J->player, PLAYER_DIRECAO_CIMA, J->mapas->map); // J->mapas[J->mapa - 1] é o mapa atual.
+      mover_player(J->player, PLAYER_DIRECAO_CIMA, J->mapa_atual->map);
     } else if (J->keys[ALLEGRO_KEY_DOWN]) { // Para baixo.
-      mover_player(J->player, PLAYER_DIRECAO_BAIXO, J->mapas->map);
+      mover_player(J->player, PLAYER_DIRECAO_BAIXO, J->mapa_atual->map);
     } else if (J->keys[ALLEGRO_KEY_RIGHT]) { // Para a direita.
-      mover_player(J->player, PLAYER_DIRECAO_DIREITA, J->mapas->map);
+      mover_player(J->player, PLAYER_DIRECAO_DIREITA, J->mapa_atual->map);
     } else if (J->keys[ALLEGRO_KEY_LEFT]) { // Para a esquerda.
-      mover_player(J->player, PLAYER_DIRECAO_ESQUERDA, J->mapas->map);
+      mover_player(J->player, PLAYER_DIRECAO_ESQUERDA, J->mapa_atual->map);
     }
 
     /* Troca instantânea de mapa a pedido do usuário.
@@ -151,17 +154,19 @@ void atualizar_jogo(Jogo *J) {
 
        /* Troca do Mapa 1 para o Mapa 2. */
     if (J->mapa == 1 && (J->player->x >= MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA || troca_mapa)) {
-      finalizar_mapa(J->mapas->map);
+      finalizar_mapa(J->mapa_atual->map);
       J->mapa = 2;
-      J->mapas->map = iniciar_mapa(J->disp, "map_2.txt");
+      J->mapa_atual = J->mapa_atual->next;
+      J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa);
       J->player->x = 1; // Teleporta o jogador para o lado esquerdo do mapa.
     }
 
     /* Troca do Mapa 2 para o Mapa 1. */
     else if (J->mapa == 2 && (J->player->x <= 0 || troca_mapa)) {
-      finalizar_mapa(J->mapas->map);
+      finalizar_mapa(J->mapa_atual->map);
       J->mapa = 1;
-      J->mapas->map = iniciar_mapa(J->disp, "map_1.txt");
+      J->mapa_atual = J->mapa_atual->prev;
+      J->mapa_atual->map = iniciar_mapa(J->disp, "map_1.txt");
       J->player->x = MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
     }
 
@@ -176,7 +181,7 @@ void atualizar_jogo(Jogo *J) {
     /* Lógica de renderização. */
 
     // Desenha o cenário.
-    al_draw_bitmap(J->mapas->map->background, 0, 0, 0);
+    al_draw_bitmap(J->mapa_atual->map->background, 0, 0, 0);
 
     // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
     al_draw_scaled_bitmap(J->player->imagem, J->player->frame * PLAYER_TAMANHO_SPRITE, J->player->direcao * PLAYER_TAMANHO_SPRITE,
@@ -201,7 +206,7 @@ void finalizar_jogo(Jogo *J) {
   /* Dados usados pelo jogo em si. */
   free(J->keys);
   finalizar_player(J->player); // Função definida em Player.c.
-  finalizar_mapa(J->mapas->map); // Função definida em Mapa.c.
+  finalizar_mapa(J->mapa_atual->map); // Função definida em Mapa.c.
   remover_mapas(J->mapas);
 
   /* Finalização definitiva do Allegro. */
