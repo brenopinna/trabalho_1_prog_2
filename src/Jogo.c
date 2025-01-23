@@ -179,22 +179,22 @@ void atualizar_jogo(Jogo *J) {
 
       /* Troca instantânea de mapa a pedido do usuário. Funções
        finalizar_mapa e iniciar_mapa definidas em Mapa.c. */
-        else if (J->keys[ALLEGRO_KEY_1]) { // Mapa 1.
-          J->n_mapa = 1;
-          troca_mapa = true;
-        } else if (J->keys[ALLEGRO_KEY_2]) { // Mapa 2.
-          J->n_mapa = 2;
-          troca_mapa = true;
-        } else if (J->keys[ALLEGRO_KEY_3]) { // Mapa 3.
-          J->n_mapa = 3;
-          troca_mapa = true;
-        } else if (J->keys[ALLEGRO_KEY_4]) { // Mapa 4.
-          J->n_mapa = 4;
-          troca_mapa = true;
-        } else if (J->keys[ALLEGRO_KEY_5]) { // Mapa 5.
-          J->n_mapa = 5;
-          troca_mapa = true;
-        }
+      else if (J->keys[ALLEGRO_KEY_1]) { // Mapa 1.
+        J->n_mapa = 1;
+        troca_mapa = true;
+      } else if (J->keys[ALLEGRO_KEY_2]) { // Mapa 2.
+        J->n_mapa = 2;
+        troca_mapa = true;
+      } else if (J->keys[ALLEGRO_KEY_3]) { // Mapa 3.
+        J->n_mapa = 3;
+        troca_mapa = true;
+      } else if (J->keys[ALLEGRO_KEY_4]) { // Mapa 4.
+        J->n_mapa = 4;
+        troca_mapa = true;
+      } else if (J->keys[ALLEGRO_KEY_5]) { // Mapa 5.
+        J->n_mapa = 5;
+        troca_mapa = true;
+      }
 
       if (colidiu(J->player, J->enemy) || colidiu(J->player, J->enemy2)) {
         J->derrota = true;
@@ -210,13 +210,13 @@ void atualizar_jogo(Jogo *J) {
          direita e à esquerda, respectivamente) ou caso o usuário tenha
          feito a troca instantânea de mapa. Funções finalizar_mapa e
          init_map definidas em Mapa.c. */
-      
-      /* Troca o mapa caso o usuário tenha feito a troca instantânea
-       de mapa ou caso o jogador tenha passado dos limites do mapa
-       (à direita e à esquerda, respectivamente). */
 
-      /* Realiza a troca instantânea de mapa e reseta
-        a posição do jogador para a padrão. */
+         /* Troca o mapa caso o usuário tenha feito a troca instantânea
+          de mapa ou caso o jogador tenha passado dos limites do mapa
+          (à direita e à esquerda, respectivamente). */
+
+          /* Realiza a troca instantânea de mapa e reseta
+            a posição do jogador para a padrão. */
       if (troca_mapa) {
         finalizar_mapa(J->mapa_atual->map);
         J->mapa_atual = selecionar_mapa(J->n_mapa, J->lista_mapas);
@@ -233,7 +233,7 @@ void atualizar_jogo(Jogo *J) {
       }
 
       /* Avança para o próximo mapa. */
-      if (J->player->x >= MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA) {
+      if (J->player->x >= MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA) {
         J->n_mapa++;
         finalizar_mapa(J->mapa_atual->map);
         J->mapa_atual = J->mapa_atual->next;
@@ -246,8 +246,8 @@ void atualizar_jogo(Jogo *J) {
         J->n_mapa--;
         finalizar_mapa(J->mapa_atual->map);
         J->mapa_atual = J->mapa_atual->prev;
-        J->mapa_atual->map = iniciar_mapa(J->disp,  J->mapa_atual->arquivo_mapa);
-        J->player->x = MAPA_LARGURA_PX - PLAYER_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
+        J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa);
+        J->player->x = MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
       }
     }
 
