@@ -6,6 +6,7 @@
 #include <Jogo.h>
 #include <Mapa.h>
 #include <Entity.h>
+#include <math.h>
 
 /*
   Função que cria um novo jogador, inicializando-o com vários
@@ -105,6 +106,14 @@ void verificar_movimento(Map *m, Entity *e) {
   e->pode_mover_direita = bloco_andavel(bloco_up_right) && bloco_andavel(bloco_bottom_right); // Para a direita.
   e->pode_mover_esquerda = bloco_andavel(bloco_up_left) && bloco_andavel(bloco_bottom_left); // Para a esquerda.
 
+  if (!e->is_player) {
+    if (e->pode_mover_direita && e->direcao == ENTITY_DIRECAO_DIREITA && x + margem_right > MAPA_LARGURA_PX - 1) {
+      e->pode_mover_direita = false;
+    } else if (e->pode_mover_esquerda && e->direcao == ENTITY_DIRECAO_ESQUERDA && x > MAPA_LARGURA_PX - 1) {
+      e->pode_mover_esquerda = false;
+    }
+  }
+
   free(bloco_up_right);
   free(bloco_up_left);
   free(bloco_bottom_right);
@@ -153,6 +162,26 @@ void inverte_direcao_entidade(Entity *e) {
 /*
   Função que libera a memória alocada para a struct Entity.
 */
+
+bool colidiu(Entity *entity1, Entity *entity2) {
+  float x1_l = entity1->x;
+  float x1_r = entity1->x + ENTITY_TAMANHO_SPRITE_REDUZIDA;
+  float y1_t = entity1->y;
+  float y1_b = entity1->y + ENTITY_TAMANHO_SPRITE_REDUZIDA;
+
+  float x2_l = entity2->x;
+  float x2_r = entity2->x + ENTITY_TAMANHO_SPRITE_REDUZIDA;
+  float y2_t = entity2->y;
+  float y2_b = entity2->y + ENTITY_TAMANHO_SPRITE_REDUZIDA;
+
+  if (fabsf(x1_l - x2_l) < ENTITY_TAMANHO_SPRITE_REDUZIDA / 2 || fabsf(x1_r - x2_r) < ENTITY_TAMANHO_SPRITE_REDUZIDA / 2) {
+    if (fabsf(y1_t - y2_t) < ENTITY_TAMANHO_SPRITE_REDUZIDA / 2 || fabsf(y1_b - y2_b) < ENTITY_TAMANHO_SPRITE_REDUZIDA / 2) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 void finalizar_entidade(Entity *e) {
   al_destroy_bitmap(e->imagem); // Libera a memória da imagem dos sprites do jogador.

@@ -41,4 +41,6 @@ void mover_entidade(Entity *e, int direcao, Map *m);
 
 void inverte_direcao_entidade(Entity *e);
 
+bool colidiu(Entity *entity1, Entity *entity2);
+
 void finalizar_entidade(Entity *p);

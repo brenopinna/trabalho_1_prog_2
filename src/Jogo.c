@@ -29,6 +29,7 @@ struct Jogo {
   int mapa; // Mantém registrado qual mapa está aberto no momento.
   bool *keys; // Vetor que armazena o estado das teclas do teclado.
   int frame_count; // Contagem de quadros renderizados. Usada para controlar a velocidade da animação do sprite do jogador.
+  bool derrota;
 };
 
 // TODO: Ver uma forma de renderizar a árvore em somente um bloco.
@@ -63,10 +64,16 @@ Jogo *novo_jogo() {
   J->player = criar_player(); // Função definida em Player.c.
   J->enemy = criar_entidade();
   J->enemy2 = criar_entidade();
+
+  //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
+  J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
+  J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 3;
+  //!
   J->mapas = malloc(2 * sizeof(Map *)); // Reserva espaço para dois mapas.
   J->mapas[0] = iniciar_mapa(J->disp, "map_1.txt"); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
+  J->derrota = false;
 
   /* Registra as fontes de eventos utilizadas. */
   al_register_event_source(J->queue, al_get_keyboard_event_source());
@@ -114,17 +121,8 @@ void atualizar_jogo(Jogo *J) {
   /* Lógica principal da atualização do jogo. Só é executada em sincronia com
      o temporizador e quando não há mais outros eventos a serem processados. */
   if (J->event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
-    J->frame_count++; // Aumenta a contagem de quadros renderizados.
+    if (J->derrota) return;
     bool troca_mapa = false; // Indica se o mapa foi trocado a pedido do usuário ou não.
-
-    /* Controla a ocorrência e a velocidade da animação do sprite do
-       jogador. A animação só ocorre quando o jogador está andando
-       e avança um quadro a cada dez quadros renderizados. */
-    if (!(J->frame_count % 10) && J->player->andando) {
-      mudar_frame(J->player); // Função definida em Player.c.
-      // J->frame_count = 0; // Reinicia a contagem de quadros renderizados.
-    }
-
     if (!(J->frame_count % 10)) {
       if (!(J->frame_count % (70 + (rand() % 4) * 10))) {
         J->enemy->direcao = rand() % 4;
@@ -137,7 +135,9 @@ void atualizar_jogo(Jogo *J) {
         mudar_frame(J->enemy); // Função definida em Player.c.
       if (J->enemy2->andando)
         mudar_frame(J->enemy2); // Função definida em Player.c.
-      // J->frame_count = 0; // Reinicia a contagem de quadros renderizados.
+      if (J->player->andando) {
+        mudar_frame(J->player); // Função definida em Player.c.
+      }
     }
 
     mover_entidade(J->enemy, J->enemy->direcao, J->mapas[J->mapa - 1]);
@@ -167,6 +167,10 @@ void atualizar_jogo(Jogo *J) {
         troca_mapa = true;
     }
 
+    if (colidiu(J->player, J->enemy) || colidiu(J->player, J->enemy2)) {
+      J->derrota = true;
+    }
+
     // TODO: Isolar essa parte de trocar mapa em outra função e refatorá-la.
 
     /* Troca o mapa caso o jogador tenha passado dos limites do mapa (à
@@ -180,6 +184,10 @@ void atualizar_jogo(Jogo *J) {
       J->mapa = 2;
       J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_2.txt");
       J->player->x = 1; // Teleporta o jogador para o lado esquerdo do mapa.
+      //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
+      J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
+      J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
+      //!
     }
 
     /* Troca do Mapa 2 para o Mapa 1. */
@@ -188,6 +196,10 @@ void atualizar_jogo(Jogo *J) {
       J->mapa = 1;
       J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_1.txt");
       J->player->x = MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
+      //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
+      J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
+      J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
+      //!
     }
 
     /* Reseta a posição do jogador para o padrão caso a
@@ -196,28 +208,50 @@ void atualizar_jogo(Jogo *J) {
       J->player->x = ENTITY_TAMANHO_SPRITE_REDUZIDA;
       J->player->y = ENTITY_TAMANHO_SPRITE_REDUZIDA;
       J->player->direcao = ENTITY_DIRECAO_BAIXO;
+      //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
+      J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
+      J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
+      //!
+      J->frame_count = 0;
     }
 
     /* Lógica de renderização. */
 
-    // Desenha o cenário.
-    al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
+    Entity *entities[] = { J->player, J->enemy, J->enemy2 };
+    int size = sizeof(entities) / sizeof(Entity *);
+    for (int i = 0; i < size; i++) {
+      bool troca = false;
+      for (int j = 0; j < size - 1; j++) {
+        if (entities[j]->y >= entities[j + 1]->y) {
+          Entity *tmp = entities[j];
+          entities[j] = entities[j + 1];
+          entities[j + 1] = tmp;
+          troca = true;
+        }
+      }
+      if (!troca) break;
+    }
 
-    // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
+    if (!J->derrota) {
+      // Desenha o cenário.
+      al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
 
-    al_draw_tinted_scaled_bitmap(J->enemy->imagem, al_map_rgba(50, 100, 255, 150), J->enemy->frame * ENTITY_TAMANHO_SPRITE, J->enemy->direcao * ENTITY_TAMANHO_SPRITE,
-                                 ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, J->enemy->x, J->enemy->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
-    al_draw_tinted_scaled_bitmap(J->enemy2->imagem, al_map_rgba(50, 100, 255, 150), J->enemy2->frame * ENTITY_TAMANHO_SPRITE, J->enemy2->direcao * ENTITY_TAMANHO_SPRITE,
-                                 ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, J->enemy2->x, J->enemy2->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
-    // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
-    // al_draw_scaled_bitmap(J->enemy2->imagem, J->enemy2->frame * ENTITY_TAMANHO_SPRITE, J->enemy2->direcao * ENTITY_TAMANHO_SPRITE,
-    //                       ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, J->enemy2->x, J->enemy2->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
-    // Desenha o quadro certo do sprite do jogador com a direção, posição e tamanho corretos.
-    al_draw_scaled_bitmap(J->player->imagem, J->player->frame * ENTITY_TAMANHO_SPRITE, J->player->direcao * ENTITY_TAMANHO_SPRITE,
-                          ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, J->player->x, J->player->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
+      for (int i = 0; i < 3; i++) {
+        if (entities[i]->is_player) {
+          al_draw_scaled_bitmap(entities[i]->imagem, entities[i]->frame * ENTITY_TAMANHO_SPRITE, entities[i]->direcao * ENTITY_TAMANHO_SPRITE,
+                                ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, entities[i]->x, entities[i]->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
+        } else {
+          al_draw_tinted_scaled_bitmap(entities[i]->imagem, al_map_rgba(50, 100, 255, 150), entities[i]->frame * ENTITY_TAMANHO_SPRITE, entities[i]->direcao * ENTITY_TAMANHO_SPRITE,
+                                       ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, entities[i]->x, entities[i]->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
+        }
+      }
 
+    } else {
+      // TODO: Aqui, renderizar um texto de derrota
+    }
     // Atualiza a tela com o novo quadro renderizado.
     al_flip_display();
+    J->frame_count++; // Aumenta a contagem de quadros renderizados.
   }
 }
 
