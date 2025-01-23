@@ -4,9 +4,9 @@
 #include <Mapa.h>
 #include <ListaEncadeada.h>
 
-MapNode* adicionar_mapa(char nome_do_arquivo[256], MapNode* head){
+MapNode* adicionar_mapa(char arquivo_mapa[256], MapNode* head){
     MapNode* node = malloc(sizeof(MapNode));
-    strcpy(node->nome_do_arquivo, nome_do_arquivo);
+    strcpy(node->arquivo_mapa, arquivo_mapa);
     node->prev = head;
     node->next = NULL;
     if(head != NULL) head->next = node;

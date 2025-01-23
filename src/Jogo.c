@@ -57,7 +57,7 @@ Jogo *novo_jogo() {
   J->keys = calloc(ALLEGRO_KEY_MAX, sizeof(bool)); // Inicializa o vetor do teclado com zeros.
   J->player = criar_player(); // Função definida em Player.c.
   J->mapas = adicionar_mapa("map_1.txt", NULL);
-  J->mapas->map = iniciar_mapa(J->disp, J->mapas->nome_do_arquivo); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
+  J->mapas->map = iniciar_mapa(J->disp, J->mapas->arquivo_mapa); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
   J->mapa = 1; // Registra que o mapa carregado foi o primeiro.
   J->frame_count = 0; // Inicia a contagem de quadros em 0.
 
