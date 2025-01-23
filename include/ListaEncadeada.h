@@ -11,4 +11,6 @@ typedef struct MapNode {
 
 MapNode* adicionar_mapa(const char* arquivo_mapa, MapNode* head);
 
+MapNode* criar_lista_de_mapas();
+
 void remover_mapas(MapNode* head);
