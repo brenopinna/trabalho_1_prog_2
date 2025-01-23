@@ -107,9 +107,9 @@ void verificar_movimento(Map *m, Entity *e) {
   e->pode_mover_esquerda = bloco_andavel(bloco_up_left) && bloco_andavel(bloco_bottom_left); // Para a esquerda.
 
   if (!e->is_player) {
-    if (e->pode_mover_direita && e->direcao == ENTITY_DIRECAO_DIREITA && x + margem_right > MAPA_LARGURA_PX - 1) {
+    if (e->pode_mover_direita && e->direcao == ENTITY_DIRECAO_DIREITA && x + margem_right >= MAPA_LARGURA_PX - 1) {
       e->pode_mover_direita = false;
-    } else if (e->pode_mover_esquerda && e->direcao == ENTITY_DIRECAO_ESQUERDA && x > MAPA_LARGURA_PX - 1) {
+    } else if (e->pode_mover_esquerda && e->direcao == ENTITY_DIRECAO_ESQUERDA && x <= 1) {
       e->pode_mover_esquerda = false;
     }
   }
