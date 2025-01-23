@@ -9,6 +9,6 @@ typedef struct MapNode {
   struct MapNode* next;
 } MapNode;
 
-MapNode* adicionar_mapa(char arquivo_mapa[256], MapNode* head);
+MapNode* adicionar_mapa(const char* arquivo_mapa, MapNode* head);
 
 void remover_mapas(MapNode* head);

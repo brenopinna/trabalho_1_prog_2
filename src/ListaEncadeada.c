@@ -4,7 +4,7 @@
 #include <Mapa.h>
 #include <ListaEncadeada.h>
 
-MapNode* adicionar_mapa(char arquivo_mapa[256], MapNode* head){
+MapNode* adicionar_mapa(const char* arquivo_mapa, MapNode* head){
     MapNode* node = malloc(sizeof(MapNode));
     strcpy(node->arquivo_mapa, arquivo_mapa);
     node->prev = head;
