@@ -80,11 +80,8 @@ Jogo *novo_jogo() {
   J->enemy = criar_entidade();
   J->enemy2 = criar_entidade();
   J->goal = criar_objetivo();
-
-  //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
-  J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
-  J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 3;
-  //!
+  J->enemy2->x = J->enemy->x = ENTITY_POSICAO_INICIAL_X;
+  J->enemy2->y = J->enemy->y = ENTITY_POSICAO_INICIAL_Y;
   J->lista_mapas = criar_lista_de_mapas();
   J->mapa_atual = J->lista_mapas;
   J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa); // Carrega, inicialmente, o Mapa 1. Função definida em Mapa.c.
@@ -225,11 +222,8 @@ void atualizar_jogo(Jogo *J) {
         J->player->x = ENTITY_TAMANHO_SPRITE_REDUZIDA;
         J->player->y = ENTITY_TAMANHO_SPRITE_REDUZIDA;
         J->player->direcao = ENTITY_DIRECAO_BAIXO;
-        //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
-        J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
-        J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
-        //!
-        J->frame_count = 0;
+        J->enemy2->x = J->enemy->x = ENTITY_POSICAO_INICIAL_X;
+        J->enemy2->y = J->enemy->y = ENTITY_POSICAO_INICIAL_Y;
       }
 
       /* Avança para o próximo mapa. */
@@ -239,6 +233,8 @@ void atualizar_jogo(Jogo *J) {
         J->mapa_atual = J->mapa_atual->next;
         J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa);
         J->player->x = 1; // Teleporta o jogador para o lado esquerdo do mapa.
+        J->enemy2->x = J->enemy->x = ENTITY_POSICAO_INICIAL_X;
+        J->enemy2->y = J->enemy->y = ENTITY_POSICAO_INICIAL_Y;
       }
 
       /* Volta para o mapa anterior. */
@@ -248,6 +244,8 @@ void atualizar_jogo(Jogo *J) {
         J->mapa_atual = J->mapa_atual->prev;
         J->mapa_atual->map = iniciar_mapa(J->disp, J->mapa_atual->arquivo_mapa);
         J->player->x = MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
+        J->enemy2->x = J->enemy->x = ENTITY_POSICAO_INICIAL_X;
+        J->enemy2->y = J->enemy->y = ENTITY_POSICAO_INICIAL_Y;
       }
     }
 

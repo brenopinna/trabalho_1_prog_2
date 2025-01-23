@@ -17,8 +17,8 @@ Entity *criar_objetivo() {
   /* Aloca dinamicamente uma nova struct Player e inicializa-a. */
   Entity *p = criar_entidade();
 
-  p->x = 2 * ENTITY_TAMANHO_SPRITE_REDUZIDA;
-  p->y = 8 * ENTITY_TAMANHO_SPRITE_REDUZIDA;
+  p->x = GOAL_POSICAO_X;
+  p->y = GOAL_POSICAO_Y;
 
   p->imagem = al_load_bitmap("assets/chest-sprite.png");
   if (!p->imagem) {
