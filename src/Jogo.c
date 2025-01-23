@@ -135,96 +135,98 @@ void atualizar_jogo(Jogo *J) {
   if (J->event.type == ALLEGRO_EVENT_TIMER && al_is_event_queue_empty(J->queue)) {
     if (J->derrota) return;
     bool troca_mapa = false; // Indica se o mapa foi trocado a pedido do usuário ou não.
-    if (!(J->frame_count % 10)) {
-      if (!(J->frame_count % (70 + (rand() % 4) * 10))) {
-        J->enemy->direcao = rand() % 4;
+    if (!J->show_title) {
+      if (!(J->frame_count % 10)) {
+        if (!(J->frame_count % (70 + (rand() % 4) * 10))) {
+          J->enemy->direcao = rand() % 4;
+        }
+        if (!(J->frame_count % (70 + (rand() % 4) * 10))) {
+          J->enemy2->direcao = rand() % 4;
+        }
+
+        if (J->enemy->andando)
+          mudar_frame(J->enemy); // Função definida em Player.c.
+        if (J->enemy2->andando)
+          mudar_frame(J->enemy2); // Função definida em Player.c.
+        if (J->player->andando) {
+          mudar_frame(J->player); // Função definida em Player.c.
+        }
       }
-      if (!(J->frame_count % (70 + (rand() % 4) * 10))) {
-        J->enemy2->direcao = rand() % 4;
+
+      mover_entidade(J->enemy, J->enemy->direcao, J->mapas[J->mapa - 1]);
+      mover_entidade(J->enemy2, J->enemy2->direcao, J->mapas[J->mapa - 1]);
+
+      /* Verifica se o usuário deu algum comando de teclado válido
+         e executa a ação correspondente ao comando detectado. */
+
+         /* Movimento do jogador. Função mover_player definida em Player.c. */
+      if (J->keys[ALLEGRO_KEY_UP]) { // Para cima.
+        mover_entidade(J->player, ENTITY_DIRECAO_CIMA, J->mapas[J->mapa - 1]); // J->mapas[J->mapa - 1] é o mapa atual.
+      } else if (J->keys[ALLEGRO_KEY_DOWN]) { // Para baixo.
+        mover_entidade(J->player, ENTITY_DIRECAO_BAIXO, J->mapas[J->mapa - 1]);
+      } else if (J->keys[ALLEGRO_KEY_RIGHT]) { // Para a direita.
+        mover_entidade(J->player, ENTITY_DIRECAO_DIREITA, J->mapas[J->mapa - 1]);
+      } else if (J->keys[ALLEGRO_KEY_LEFT]) { // Para a esquerda.
+        mover_entidade(J->player, ENTITY_DIRECAO_ESQUERDA, J->mapas[J->mapa - 1]);
       }
 
-      if (J->enemy->andando)
-        mudar_frame(J->enemy); // Função definida em Player.c.
-      if (J->enemy2->andando)
-        mudar_frame(J->enemy2); // Função definida em Player.c.
-      if (J->player->andando) {
-        mudar_frame(J->player); // Função definida em Player.c.
+      /* Troca instantânea de mapa a pedido do usuário.
+         Só ocorre se o mapa escolhido não for o atual. */
+      else if (J->keys[ALLEGRO_KEY_1]) { // Mapa 1.
+        if (J->mapa != 1)
+          troca_mapa = true;
+      } else if (J->keys[ALLEGRO_KEY_2]) { // Mapa 2.
+        if (J->mapa != 2)
+          troca_mapa = true;
       }
-    }
 
-    mover_entidade(J->enemy, J->enemy->direcao, J->mapas[J->mapa - 1]);
-    mover_entidade(J->enemy2, J->enemy2->direcao, J->mapas[J->mapa - 1]);
+      if (colidiu(J->player, J->enemy) || colidiu(J->player, J->enemy2)) {
+        J->derrota = true;
+      }
 
-    /* Verifica se o usuário deu algum comando de teclado válido
-       e executa a ação correspondente ao comando detectado. */
+      // TODO: Isolar essa parte de trocar mapa em outra função e refatorá-la.
 
-       /* Movimento do jogador. Função mover_player definida em Player.c. */
-    if (J->keys[ALLEGRO_KEY_UP]) { // Para cima.
-      mover_entidade(J->player, ENTITY_DIRECAO_CIMA, J->mapas[J->mapa - 1]); // J->mapas[J->mapa - 1] é o mapa atual.
-    } else if (J->keys[ALLEGRO_KEY_DOWN]) { // Para baixo.
-      mover_entidade(J->player, ENTITY_DIRECAO_BAIXO, J->mapas[J->mapa - 1]);
-    } else if (J->keys[ALLEGRO_KEY_RIGHT]) { // Para a direita.
-      mover_entidade(J->player, ENTITY_DIRECAO_DIREITA, J->mapas[J->mapa - 1]);
-    } else if (J->keys[ALLEGRO_KEY_LEFT]) { // Para a esquerda.
-      mover_entidade(J->player, ENTITY_DIRECAO_ESQUERDA, J->mapas[J->mapa - 1]);
-    }
+      /* Troca o mapa caso o jogador tenha passado dos limites do mapa (à
+         direita e à esquerda, respectivamente) ou caso o usuário tenha
+         feito a troca instantânea de mapa. Funções finalizar_mapa e
+         init_map definidas em Mapa.c. */
 
-    /* Troca instantânea de mapa a pedido do usuário.
-       Só ocorre se o mapa escolhido não for o atual. */
-    else if (J->keys[ALLEGRO_KEY_1]) { // Mapa 1.
-      if (J->mapa != 1)
-        troca_mapa = true;
-    } else if (J->keys[ALLEGRO_KEY_2]) { // Mapa 2.
-      if (J->mapa != 2)
-        troca_mapa = true;
-    }
+         /* Troca do Mapa 1 para o Mapa 2. */
+      if (J->mapa == 1 && (J->player->x >= MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA || troca_mapa)) {
+        finalizar_mapa(J->mapas[J->mapa - 1]);
+        J->mapa = 2;
+        J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_2.txt");
+        J->player->x = 1; // Teleporta o jogador para o lado esquerdo do mapa.
+        //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
+        J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
+        J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
+        //!
+      }
 
-    if (colidiu(J->player, J->enemy) || colidiu(J->player, J->enemy2)) {
-      J->derrota = true;
-    }
+      /* Troca do Mapa 2 para o Mapa 1. */
+      else if (J->mapa == 2 && (J->player->x <= 0 || troca_mapa)) {
+        finalizar_mapa(J->mapas[J->mapa - 1]);
+        J->mapa = 1;
+        J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_1.txt");
+        J->player->x = MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
+        //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
+        J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
+        J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
+        //!
+      }
 
-    // TODO: Isolar essa parte de trocar mapa em outra função e refatorá-la.
-
-    /* Troca o mapa caso o jogador tenha passado dos limites do mapa (à
-       direita e à esquerda, respectivamente) ou caso o usuário tenha
-       feito a troca instantânea de mapa. Funções finalizar_mapa e
-       init_map definidas em Mapa.c. */
-
-       /* Troca do Mapa 1 para o Mapa 2. */
-    if (J->mapa == 1 && (J->player->x >= MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA || troca_mapa)) {
-      finalizar_mapa(J->mapas[J->mapa - 1]);
-      J->mapa = 2;
-      J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_2.txt");
-      J->player->x = 1; // Teleporta o jogador para o lado esquerdo do mapa.
-      //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
-      J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
-      J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
-      //!
-    }
-
-    /* Troca do Mapa 2 para o Mapa 1. */
-    else if (J->mapa == 2 && (J->player->x <= 0 || troca_mapa)) {
-      finalizar_mapa(J->mapas[J->mapa - 1]);
-      J->mapa = 1;
-      J->mapas[J->mapa - 1] = iniciar_mapa(J->disp, "map_1.txt");
-      J->player->x = MAPA_LARGURA_PX - ENTITY_TAMANHO_SPRITE_REDUZIDA - 1; // Teleporta o jogador para o lado direito do mapa.
-      //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
-      J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
-      J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
-      //!
-    }
-
-    /* Reseta a posição do jogador para o padrão caso a
-       troca de mapa tenha sido a pedido do usuário. */
-    if (troca_mapa) {
-      J->player->x = ENTITY_TAMANHO_SPRITE_REDUZIDA;
-      J->player->y = ENTITY_TAMANHO_SPRITE_REDUZIDA;
-      J->player->direcao = ENTITY_DIRECAO_BAIXO;
-      //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
-      J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
-      J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
-      //!
-      J->frame_count = 0;
+      /* Reseta a posição do jogador para o padrão caso a
+         troca de mapa tenha sido a pedido do usuário. */
+      if (troca_mapa) {
+        J->player->x = ENTITY_TAMANHO_SPRITE_REDUZIDA;
+        J->player->y = ENTITY_TAMANHO_SPRITE_REDUZIDA;
+        J->player->direcao = ENTITY_DIRECAO_BAIXO;
+        //! REMOVER ISSO AQ QUANDO OS MAPAS ESTIVEREM PRONTOS, EH SO PRA TESTAR A COLISAO
+        J->enemy2->x = J->enemy->x = ENTITY_TAMANHO_SPRITE_REDUZIDA * 12;
+        J->enemy2->y = J->enemy->y = ENTITY_TAMANHO_SPRITE_REDUZIDA * 7;
+        //!
+        J->frame_count = 0;
+      }
     }
 
     /* Lógica de renderização. */
@@ -244,12 +246,6 @@ void atualizar_jogo(Jogo *J) {
       if (!troca) break;
     }
 
-
-    if (J->show_title) {
-      draw_centered_scaled_text(J->title, 3, 0, 0);
-      draw_centered_scaled_text(J->subtitle, 1.6, 0, FONT_SIZE * 3);
-    }
-
     if (!J->derrota) {
       // Desenha o cenário.
       al_draw_bitmap(J->mapas[J->mapa - 1]->background, 0, 0, 0);
@@ -265,8 +261,19 @@ void atualizar_jogo(Jogo *J) {
       }
 
     } else {
-      // TODO: Aqui, renderizar um texto de derrota
+      J->title = edit_text_bitmap(J->disp, J->title, "VOCÊ PERDEU!");
+      J->subtitle = edit_text_bitmap(J->disp, J->subtitle, "Reinicie o jogo e tente novamente.");
+      J->show_title = true;
     }
+
+    if (J->show_title) {
+      if (J->derrota) {
+        al_clear_to_color(al_map_rgb(200, 0, 0));
+      }
+      draw_centered_scaled_text(J->title, 3, 0, 0);
+      draw_centered_scaled_text(J->subtitle, 1.6, 0, FONT_SIZE * 3);
+    }
+
     // Atualiza a tela com o novo quadro renderizado.
     al_flip_display();
     J->frame_count++; // Aumenta a contagem de quadros renderizados.
