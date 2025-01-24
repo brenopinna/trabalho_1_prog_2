@@ -9,12 +9,11 @@
 #include <Goal.h>
 
 /*
-  Função que cria um novo jogador, inicializando-o com vários
-  valores padrão. Retorna um ponteiro para a struct Player.
+  Função que cria o baú, que é o objetivo do jogo. Retorna um ponteiro para uma struct Entity.
 */
 
 Entity *criar_objetivo() {
-  /* Aloca dinamicamente uma nova struct Player e inicializa-a. */
+  /* Aloca dinamicamente uma nova struct Entity e inicializa-a. */
   Entity *p = criar_entidade();
 
   p->x = GOAL_POSICAO_X;

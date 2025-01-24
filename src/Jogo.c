@@ -300,32 +300,36 @@ void atualizar_jogo(Jogo *J) {
       /* Desenha o cenário. */
       al_draw_bitmap(J->mapa_atual->map->background, 0, 0, 0);
 
+      /* Desenha cada uma das entidades, seguindo a ordem do vetor criado anteriormente. */
       for (int i = 0; i < size; i++) {
-        if (entities[i]->is_player) {
+        if (entities[i]->is_player) { // Jogador.
           al_draw_scaled_bitmap(entities[i]->imagem, entities[i]->frame * ENTITY_TAMANHO_SPRITE, entities[i]->direcao * ENTITY_TAMANHO_SPRITE,
                                 ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, entities[i]->x, entities[i]->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
-        } else if (entities[i]->is_goal && !J->mapa_atual->next)
+        } else if (entities[i]->is_goal && !J->mapa_atual->next) // Baú (só é desenhado se o usuário estiver no último mapa).
           al_draw_scaled_bitmap(entities[i]->imagem, 0, 0, GOAL_TAMANHO_SPRITE, GOAL_TAMANHO_SPRITE,
                                 entities[i]->x, entities[i]->y, GOAL_TAMANHO_SPRITE_REDUZIDA, GOAL_TAMANHO_SPRITE_REDUZIDA, 0);
-        else {
+        else { // Inimigos (são desenhados com um efeito especial de coloração e transparência).
           al_draw_tinted_scaled_bitmap(entities[i]->imagem, al_map_rgba(50, 100, 255, 150), entities[i]->frame * ENTITY_TAMANHO_SPRITE, entities[i]->direcao * ENTITY_TAMANHO_SPRITE,
                                        ENTITY_TAMANHO_SPRITE, ENTITY_TAMANHO_SPRITE, entities[i]->x, entities[i]->y, ENTITY_TAMANHO_SPRITE_REDUZIDA, ENTITY_TAMANHO_SPRITE_REDUZIDA, 0);
         }
       }
     }
 
+    /* Desenha texto na tela. */
     if (J->show_title) {
-      if (J->derrota) {
+      if (J->derrota) { // Se o usuário foi derrotado, pinta-se o fundo de vermelho.
         al_clear_to_color(al_map_rgb(200, 0, 0));
-      } else if (J->vitoria) {
+      } else if (J->vitoria) { // Se o usuário foi venceu o jogo, pinta-se o fundo de verde.
         al_clear_to_color(al_map_rgb(0, 200, 0));
       }
       draw_centered_scaled_text(J->title, 3, 0, 0);
       draw_centered_scaled_text(J->subtitle, 1.6, 0, FONT_SIZE * 3);
     }
-    // Atualiza a tela com o novo quadro renderizado.
+    /* Atualiza a tela com o novo quadro renderizado. */
     al_flip_display();
-    J->frame_count++; // Aumenta a contagem de quadros renderizados.
+
+    /* Aumenta a contagem de quadros renderizados. */
+    J->frame_count++;
   }
 }
 
@@ -342,13 +346,13 @@ void finalizar_jogo(Jogo *J) {
 
   /* Dados usados pelo jogo em si. */
   free(J->keys);
-  finalizar_entidade(J->player); // Função definida em Player.c.
+  finalizar_entidade(J->player); // Função definida em Entity.c.
   finalizar_entidade(J->enemy);
   finalizar_entidade(J->enemy2);
   finalizar_entidade(J->goal);
   finalizar_mapa(J->mapa_atual->map); // Função definida em Mapa.c.
-  remover_mapas(J->lista_mapas);
-  free_text_bitmap(J->title);
+  remover_mapas(J->lista_mapas); // Função definida em ListaEncadeada.c.
+  free_text_bitmap(J->title); // Função definida em Texto.c.
   free_text_bitmap(J->subtitle);
 
   /* Finalização definitiva do Allegro. */
