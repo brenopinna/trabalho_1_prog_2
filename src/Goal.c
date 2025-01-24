@@ -21,7 +21,7 @@ Entity *criar_objetivo() {
 
   p->imagem = al_load_bitmap("assets/chest-sprite.png");
   if (!p->imagem) {
-    puts("Não foi possível carregar a sprite do baú. Reinicie o jogo e tente novamente.");
+    puts("Nao foi possivel abrir a imagem do sprite do bau. Reinicie o jogo e tente novamente.");
   }
   assert(p->imagem != NULL);
 
