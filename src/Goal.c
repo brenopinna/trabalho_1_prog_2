@@ -9,20 +9,19 @@
 #include <Goal.h>
 
 /*
-  Função que cria um novo jogador, inicializando-o com vários
-  valores padrão. Retorna um ponteiro para a struct Player.
+  Função que cria o baú, que é o objetivo do jogo. Retorna um ponteiro para uma struct Entity.
 */
 
 Entity *criar_objetivo() {
-  /* Aloca dinamicamente uma nova struct Player e inicializa-a. */
+  /* Aloca dinamicamente uma nova struct Entity e inicializa-a. */
   Entity *p = criar_entidade();
 
-  p->x = 2 * ENTITY_TAMANHO_SPRITE_REDUZIDA;
-  p->y = 8 * ENTITY_TAMANHO_SPRITE_REDUZIDA;
+  p->x = GOAL_POSICAO_X;
+  p->y = GOAL_POSICAO_Y;
 
   p->imagem = al_load_bitmap("assets/chest-sprite.png");
   if (!p->imagem) {
-    puts("Não foi possível carregar a sprite do baú. Reinicie o jogo e tente novamente.");
+    puts("Nao foi possivel abrir a imagem do sprite do bau. Reinicie o jogo e tente novamente.");
   }
   assert(p->imagem != NULL);
 
