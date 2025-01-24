@@ -9,8 +9,7 @@
 #include <math.h>
 
 /*
-  Função que cria um novo jogador, inicializando-o com vários
-  valores padrão. Retorna um ponteiro para a struct Entity.
+  Função que cria uma nova entidade. Retorna um ponteiro para uma struct Entity.
 */
 
 Entity *criar_entidade() {
@@ -26,20 +25,20 @@ Entity *criar_entidade() {
   }
   assert(e->imagem != NULL);
 
-  e->x = ENTITY_TAMANHO_SPRITE_REDUZIDA; // Esta linha e a próxima colocam o jogador na posição padrão, que
+  e->x = ENTITY_TAMANHO_SPRITE_REDUZIDA; // Esta linha e a próxima colocam a entidade na posição padrão, que
   e->y = ENTITY_TAMANHO_SPRITE_REDUZIDA; // é no canto superior esquerdo da tela com uma pequena margem.
-  e->velocidade = ENTITY_VELOCIDADE; // Define a velocidade do jogador.
-  e->andando = false; // Por padrão, o jogador está parado.
-  e->direcao = ENTITY_DIRECAO_BAIXO; // Por padrão, o jogador está virado para baixo.
-  e->frame = 0; // Quando o jogador está parado, o seu sprite usa o quadro 0 da animação.
-  e->inverte_frame = false; // A animação do sprite do jogador inicia no sentido normal.
+  e->velocidade = ENTITY_VELOCIDADE; // Define a velocidade da entidade.
+  e->andando = false; // Por padrão, a entidade está parada.
+  e->direcao = ENTITY_DIRECAO_BAIXO; // Por padrão, a entidade está virada para baixo.
+  e->frame = 0; // Quando a entidade está parada, o seu sprite usa o quadro 0 da animação.
+  e->inverte_frame = false; // A animação do sprite da entidade inicia no sentido normal.
   e->is_player = false;
 
   return e;
 }
 
 /*
-  Função que indica que o jogador parou de andar e reinicia a sua animação.
+  Função que indica que a entidade parou de andar e reinicia a sua animação.
 */
 
 void parar_entidade(Entity *e) {
@@ -49,7 +48,7 @@ void parar_entidade(Entity *e) {
 }
 
 /*
-  Função que controla a animação do sprite do jogador. A animação
+  Função que controla a animação do sprite da entidade. A animação
   é um loop de ida e volta entre os quadros 1, 2, 3 e 4.
 */
 
@@ -63,17 +62,17 @@ void mudar_frame(Entity *e) {
 }
 
 /*
-  Função que detecta a colisão do personagem com os blocos não andáveis do
-  cenário. Ela simula o movimento que o jogador faria, verifica se o jogador
-  entraria em algum bloco do cenário em que ele não pode andar e salva na
-  struct Entity a permissão ou não de movimento para cada direção.
+  Função que detecta a colisão da entidade com os blocos não andáveis do cenário
+  Ela simula o movimento que a entidade faria, verifica se a entidade entraria
+  em algum bloco do cenário em que ela não pode andar e salva na struct Entity
+  a permissão ou não de movimento para cada direção.
 */
 
 void verificar_movimento(Map *m, Entity *e) {
-  /* Coleta a posição do jogador em uma variável local para comparação. */
+  /* Coleta a posição da entidade em uma variável local para comparação. */
   int x = e->x, y = e->y;
 
-  /* Simula o movimento, alterando a posição do jogador de acordo
+  /* Simula o movimento, alterando a posição da entidade de acordo
      com a tecla pressionada apenas nas variáveis locais. */
   if (e->direcao == ENTITY_DIRECAO_CIMA) { // Para cima.
     y -= e->velocidade;
@@ -85,22 +84,22 @@ void verificar_movimento(Map *m, Entity *e) {
     x -= e->velocidade;
   }
 
-  /* Definição das margens de colisão do jogador. */
+  /* Definição das margens de colisão da entidade. */
   int margem_right = ENTITY_TAMANHO_SPRITE_REDUZIDA;
   int margem_left = 0;
   int margem_bottom = ENTITY_TAMANHO_SPRITE_REDUZIDA;
   int margem_top = ENTITY_TAMANHO_SPRITE_REDUZIDA / 2;
 
-  /* Verifica os blocos que estariam em cada um dos quatro cantos do sprite do
-     jogador. Os códigos dos blocos são salvos em strings temporárias. */
+  /* Verifica os blocos que estariam em cada um dos quatro cantos do sprite da
+     entidade. Os códigos dos blocos são salvos em strings temporárias. */
   char *bloco_up_right = pegar_bloco_da_posicao(m, x + margem_right, y + margem_top); // Canto superior direito.
   char *bloco_up_left = pegar_bloco_da_posicao(m, x + margem_left, y + margem_top); // Canto superior esquerdo.
   char *bloco_bottom_right = pegar_bloco_da_posicao(m, x + margem_right, y + margem_bottom); // Canto inferior direito.
   char *bloco_bottom_left = pegar_bloco_da_posicao(m, x + margem_left, y + margem_bottom); // Canto inferior esquerdo.
 
-  /* Verifica se cada um dos blocos encontrados anteriormente é andável
-    ou não e usa isso para registrar na struct Entity se o jogador pode
-    se mover ou não para cada uma das quatro direções. */
+  /* Verifica se cada um dos blocos encontrados anteriormente é andável ou
+     não e usa isso para registrar na struct Entity se a entidade pode se
+     mover ou não para cada uma das quatro direções. */
   e->pode_mover_cima = bloco_andavel(bloco_up_right) && bloco_andavel(bloco_up_left); // Para cima.
   e->pode_mover_baixo = bloco_andavel(bloco_bottom_right) && bloco_andavel(bloco_bottom_left); // Para baixo.
   e->pode_mover_direita = bloco_andavel(bloco_up_right) && bloco_andavel(bloco_bottom_right); // Para a direita.
@@ -121,14 +120,14 @@ void verificar_movimento(Map *m, Entity *e) {
 }
 
 /*
-  Função que movimenta o jogador a cada quadro
+  Função que movimenta a entidade a cada quadro
   renderizado, de acordo com a sua velocidade.
 */
 
 void mover_entidade(Entity *e, int direcao, Map *m) {
   assert(0 <= direcao && direcao < 4); // O jogo encerra abruptamente se o código de direção for inválido.
   e->andando = true;
-  e->direcao = direcao; // Muda a direção para a qual o jogador está virado.
+  e->direcao = direcao; // Muda a direção para a qual a entidade está virado.
 
   verificar_movimento(m, e); // Detecção de colisão.
 
@@ -136,7 +135,7 @@ void mover_entidade(Entity *e, int direcao, Map *m) {
     inverte_direcao_entidade(e);
   }
 
-  /* Altera a posição do jogador de acordo com a tecla pressionada, mas apenas se
+  /* Altera a posição da entidade de acordo com a tecla pressionada, mas apenas se
      não houver sido detectada colisão. A lógica é semelhante à utilizada na função
      verificar_movimento, mas agora alterando os valores contidos na struct Entity. */
   if (direcao == ENTITY_DIRECAO_CIMA && e->pode_mover_cima) {
