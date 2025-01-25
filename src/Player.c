@@ -1,10 +1,6 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <assert.h>
-#include <allegro5/allegro5.h>
-#include <allegro5/allegro_image.h>
-#include <Jogo.h>
-#include <Mapa.h>
+#define ALLEGRO_STATICLINK
+
+#include <Entity.h>
 #include <Player.h>
 
 /*

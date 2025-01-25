@@ -1,17 +1,18 @@
+#define ALLEGRO_STATICLINK
+
 #include <stdbool.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <time.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <Mapa.h>
 #include <ListaEncadeada.h>
-#include <Player.h>
-#include <Jogo.h>
 #include <Entity.h>
-#include <time.h>
-#include <Texto.h>
+#include <Player.h>
 #include <Goal.h>
+#include <Texto.h>
+#include <Jogo.h>
 
 /*
   Definição da struct Jogo. Ela armazena todas as informações

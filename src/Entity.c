@@ -1,12 +1,14 @@
+#define ALLEGRO_STATICLINK
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
 #include <Jogo.h>
 #include <Mapa.h>
 #include <Entity.h>
-#include <math.h>
 
 /*
   Função que cria uma nova entidade. Retorna um ponteiro para uma struct Entity.

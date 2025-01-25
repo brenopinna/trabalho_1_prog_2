@@ -1,3 +1,5 @@
+#define ALLEGRO_STATICLINK
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

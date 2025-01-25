@@ -1,5 +1,10 @@
-#include <Texto.h>
+#define ALLEGRO_STATICLINK
+
+#include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_image.h>
 #include <Mapa.h>
+#include <Texto.h>
 
 Text *create_text_bitmap(ALLEGRO_DISPLAY *display, char *string, ALLEGRO_FONT *font, ALLEGRO_COLOR color) {
   int width = strlen(string) * FONT_SIZE;

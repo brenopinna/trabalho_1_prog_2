@@ -1,5 +1,7 @@
 #pragma once
 
+#define ALLEGRO_STATICLINK
+
 #include <allegro5/allegro5.h>
 #include <Mapa.h>
 

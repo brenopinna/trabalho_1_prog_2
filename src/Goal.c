@@ -1,4 +1,5 @@
-#include <stdbool.h>
+#define ALLEGRO_STATICLINK
+
 #include <stdio.h>
 #include <assert.h>
 #include <allegro5/allegro5.h>
