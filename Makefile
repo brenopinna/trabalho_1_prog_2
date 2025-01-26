@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Iinclude -Wall -Wextra -pedantic -O3
-LDLIBS = -static-libgcc -static-libstdc++ -static -lpthread -lm -lallegro-static -lallegro_image-static -lallegro_font-static -ljpeg -lpng16 -lwebp -lzlib -lopengl32 -lgdi32 -lole32 -lwinmm -lshlwapi
+LDLIBS = -lm -lallegro -lallegro_font -lallegro_ttf -lallegro_image -lallegro_primitives -lallegro_acodec -lallegro_audio
 
 SRC_DIR = src
 OBJ_DIR = object
@@ -15,7 +15,8 @@ OBJ_FILES = $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRC_FILES)))
 # ALLEGRO = allegro
 ifdef ALLEGRO
 CFLAGS += -I${ALLEGRO}/include -I${ALLEGRO}_deps/include
-LDFLAGS = -L${ALLEGRO}/lib -L${ALLEGRO}_deps/lib 
+LDFLAGS = -L${ALLEGRO}/lib -L${ALLEGRO}_deps/lib
+LDLIBS = -static-libgcc -static-libstdc++ -static -lpthread -lm -lallegro-static -lallegro_image-static -lallegro_font-static -ljpeg -lpng16 -lwebp -lzlib -lopengl32 -lgdi32 -lole32 -lwinmm -lshlwapi
 endif
 ############################################
 
